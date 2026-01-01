@@ -22,23 +22,54 @@
       Noto Sans, Ubuntu, Cantarell, Helvetica Neue, Arial, "Apple Color Emoji", "Segoe UI Emoji";
     }
 
-    /* Modal animation */
-    .modal-enter { opacity: 1 !important; transform: translateY(0) !important; }
-    .modal-leave { opacity: 0 !important; transform: translateY(-12px) !important; }
-
-    /* Inventory availability (sold out) */
-    .sold-out { opacity: 0.55; filter: grayscale(0.25); }
-    .sold-out .add-to-cart,
-    .sold-out .add-package-to-cart,
-    .sold-out .qty-btn,
-    .sold-out .qty-input {
-      pointer-events: none;
-      opacity: 0.6;
+    /* ===== Modal animation ===== */
+    .modal-hidden { display: none; }
+    .modal-open { display: block; }
+    .cart-panel {
+      transform: translateY(-12px);
+      opacity: 0;
+      transition: transform 200ms ease, opacity 200ms ease;
+    }
+    .cart-panel.show {
+      transform: translateY(0);
+      opacity: 1;
     }
 
-    /* Smooth widget */
-    .widget-hide { opacity: 0 !important; transform: translateY(-6px) !important; pointer-events: none !important; }
-    .widget-show { opacity: 1 !important; transform: translateY(0) !important; }
+    /* Focus ring nicer */
+    :focus-visible { outline: 2px solid rgba(59,130,246,.9); outline-offset: 2px; border-radius: 10px; }
+
+    /* Sold out badge */
+    .soldout-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(0,0,0,.75);
+      color: white;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .04em;
+    }
+    .card-dim {
+      opacity: .55;
+      filter: grayscale(.15);
+    }
+
+    /* Stepper button width alignment */
+    .qty-stepper button { width: 38px; height: 36px; }
+    .qty-stepper span { min-width: 34px; display: inline-flex; justify-content: center; }
+
+    /* Sticky footer in modal (always reachable) */
+    .modal-shell {
+      max-height: min(92vh, 860px);
+      display: flex;
+      flex-direction: column;
+    }
+    .modal-body-scroll {
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+    }
   </style>
 </head>
 
@@ -55,7 +86,7 @@
         </div>
       </a>
 
-      <nav class="hidden md:flex items-center gap-4 text-sm">
+      <nav class="hidden md:flex items-center gap-6 text-sm">
         <a href="#perisa" class="hover:opacity-70">Perisa</a>
         <a href="#harga" class="hover:opacity-70">Harga</a>
         <a href="#tempahan" class="hover:opacity-70">Tempahan</a>
@@ -63,38 +94,28 @@
         <a href="#faq" class="hover:opacity-70">FAQ</a>
         <a href="#lokasi" class="hover:opacity-70">Lokasi</a>
 
-        <button id="checkCartBtn"
-                class="rounded-2xl px-4 py-2 border border-orange-400 text-orange-600 font-semibold hover:bg-orange-50 transition">
-          Semak Troli Anda
-          <span id="checkCartQty" class="ml-2 inline-flex items-center justify-center rounded-full text-xs px-2 py-0.5 bg-orange-100 text-orange-700 font-bold">0</span>
-        </button>
-
-        <a id="waTop" href="#"
-           class="rounded-2xl px-4 py-2 bg-green-600 text-white font-semibold hover:bg-green-700 shadow">
+        <a id="waTop" href="#" class="rounded-2xl px-4 py-2 font-semibold hover:shadow bg-green-600 text-white border border-green-700">
           WhatsApp
         </a>
 
-        <button id="adminBtn" type="button"
-                class="rounded-2xl px-4 py-2 border font-semibold hover:shadow">
-          Admin
-        </button>
-
-        <button id="cartBtn"
-                class="relative rounded-2xl px-4 py-2 bg-orange-500 text-white font-bold hover:bg-orange-600 shadow flex items-center gap-2">
+        <!-- Butang Troli Desktop -->
+        <button id="cartBtn" class="relative rounded-2xl px-4 py-2 font-semibold hover:shadow flex items-center gap-2 bg-amber-400 border border-amber-500">
           <i class="fa-solid fa-cart-shopping"></i>
           <span>Troli</span>
-          <span id="cartCount"
-                class="ml-1 inline-flex items-center justify-center rounded-full text-xs px-2 py-0.5 bg-gray-900 text-white">0</span>
+          <span id="cartCount" class="ml-1 inline-flex items-center justify-center rounded-full text-xs px-2 py-0.5 bg-gray-900 text-white">0</span>
+        </button>
+
+        <!-- Admin (small) -->
+        <button id="adminOpenBtn" class="rounded-2xl px-3 py-2 border text-xs font-semibold hover:shadow">
+          Admin
         </button>
       </nav>
 
-      <!-- Mobile right -->
+      <!-- Right side mobile: cart + menu -->
       <div class="flex md:hidden items-center gap-2">
-        <button id="cartBtnMobile"
-                class="relative rounded-xl bg-orange-500 text-white px-3 py-2 flex items-center gap-2 shadow hover:bg-orange-600">
+        <button id="cartBtnMobile" class="relative rounded-xl px-3 py-2 flex items-center gap-2 bg-amber-400 border border-amber-500">
           <i class="fa-solid fa-cart-shopping"></i>
-          <span id="cartCountMobile"
-                class="inline-flex items-center justify-center rounded-full text-xs px-2 py-0.5 bg-gray-900 text-white">0</span>
+          <span id="cartCountMobile" class="inline-flex items-center justify-center rounded-full text-xs px-2 py-0.5 bg-gray-900 text-white">0</span>
         </button>
         <button id="menuBtn" class="md:hidden rounded-xl border px-3 py-2">Menu</button>
       </div>
@@ -109,19 +130,11 @@
         <a href="#faq" class="py-2 menu-link">FAQ</a>
         <a href="#lokasi" class="py-2 menu-link">Lokasi</a>
 
-        <button id="checkCartBtnMobile"
-                class="mt-2 rounded-2xl px-4 py-2 border border-orange-400 text-orange-600 font-semibold hover:bg-orange-50 transition">
-          Semak Troli Anda
-          <span id="checkCartQtyMobile" class="ml-2 inline-flex items-center justify-center rounded-full text-xs px-2 py-0.5 bg-orange-100 text-orange-700 font-bold">0</span>
-        </button>
-
-        <a id="waTopMobile" href="#"
-           class="rounded-2xl px-4 py-2 bg-green-600 text-white font-semibold hover:bg-green-700 shadow text-center">
+        <a id="waTopMobile" href="#" class="rounded-xl px-4 py-2 text-center font-semibold bg-green-600 text-white border border-green-700">
           WhatsApp
         </a>
 
-        <button id="adminBtnMobile" type="button"
-                class="rounded-2xl px-4 py-2 border font-semibold hover:shadow">
+        <button id="adminOpenBtnMobile" class="rounded-xl border px-4 py-2 text-center font-semibold">
           Admin
         </button>
       </div>
@@ -145,8 +158,7 @@
             Boleh hantaran terus ke lokasi anda.
           </p>
           <div class="mt-6 flex flex-wrap gap-3">
-            <a id="waCTA1" href="#"
-               class="rounded-2xl px-5 py-3 bg-green-600 text-white font-semibold hover:bg-green-700 shadow">
+            <a id="waCTA1" href="#" class="rounded-2xl px-5 py-3 font-semibold hover:shadow bg-green-600 text-white border border-green-700">
               WhatsApp Sekarang
             </a>
             <a href="#perisa" class="rounded-2xl px-5 py-3 border font-semibold hover:shadow">
@@ -159,7 +171,6 @@
             <li class="flex items-start gap-2"><span class="mt-1">✅</span><span>Diskaun borong & pakej majlis</span></li>
           </ul>
         </div>
-
         <div class="relative">
           <div class="aspect-[4/6] rounded-3xl border shadow-sm overflow-hidden">
             <img src="front-page.jpg" alt="Aiskrim Malaysia pelbagai perisa" class="h-full w-full object-cover"/>
@@ -174,30 +185,37 @@
 
     <!-- PERISA -->
     <section id="perisa" class="mx-auto max-w-6xl px-4 py-20">
-      <div class="mx-auto max-w-3xl text-center mb-12">
+      <div class="mx-auto max-w-3xl text-center mb-10">
         <p class="text-sm uppercase tracking-widest opacity-70">Pilihan</p>
         <h2 class="mt-1 text-3xl md:text-4xl font-extrabold">Perisa Popular (15 Jenis)</h2>
         <p class="mt-3 text-base opacity-80">
           Harga setiap jenis: <strong>RM1.00 sebatang</strong>. Boleh campur perisa dalam satu order.
         </p>
-        <p class="mt-1 text-xs opacity-70">Pilih kuantiti, kemudian klik <strong>Tambah ke Troli</strong>.</p>
+        <p class="mt-1 text-xs opacity-70">
+          Pilih kuantiti, klik <strong>Tambah ke Troli</strong>.
+        </p>
       </div>
 
-      <div id="flavoursGrid" class="grid sm:grid-cols-2 lg:grid-cols-5 gap-6"></div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-6" id="flavourGrid">
+        <!-- Cards generated by JS for consistent layout -->
+      </div>
 
-      <!-- CTA: Selepas pilih perisa → Semak Pesanan -->
+      <!-- Button Semak Pesanan Anda (selepas perisa) -->
       <div class="mt-10 flex justify-center">
-        <button id="perisaCheckOrderBtn"
-                class="relative w-full max-w-md rounded-2xl px-6 py-4 bg-orange-500 text-white font-bold shadow-lg hover:bg-orange-600 flex items-center justify-center gap-2">
-          <i class="fa-solid fa-cart-shopping"></i>
-          Semak Pesanan Anda
-          <span id="perisaOrderQty"
-                class="ml-2 inline-flex items-center justify-center rounded-full text-xs px-2 py-0.5 bg-white text-gray-900 font-bold">0</span>
+        <button id="reviewOrderBtn"
+          class="rounded-2xl px-6 py-3 border font-extrabold hover:shadow flex items-center gap-3 transition"
+        >
+          <i class="fa-solid fa-clipboard-check"></i>
+          <span>Semak Pesanan Anda</span>
+          <span id="reviewOrderCount"
+            class="ml-1 inline-flex items-center justify-center rounded-full text-xs px-2 py-0.5 bg-gray-900 text-white"
+          >0</span>
         </button>
       </div>
+      <p class="mt-3 text-center text-xs opacity-70">Flow: Pilih perisa → klik Semak Pesanan → semak & hantar</p>
     </section>
 
-    <!-- HARGA -->
+    <!-- HARGA (pakej) -->
     <section id="harga" class="mx-auto max-w-6xl px-4 py-20">
       <div class="mx-auto max-w-3xl text-center mb-12">
         <p class="text-sm uppercase tracking-widest opacity-70">Pek & Pakej</p>
@@ -206,22 +224,104 @@
           Harga asas <strong>RM1.00 sebatang</strong>. Pakej istimewa untuk kuantiti besar & majlis.
         </p>
       </div>
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Pakej 15 -->
+        <div class="rounded-3xl border p-6 hover:shadow-md transition flex flex-col">
+          <div>
+            <h3 class="font-bold text-xl">15 Batang</h3>
+            <h4 class="font-bold text-sm opacity-80">(1 setiap perisa)</h4>
+            <p class="mt-4 text-3xl font-black">RM15.00</p>
+            <p class="mt-2 text-sm opacity-70">Min. 15 batang (RM1.00 x 15)</p>
+          </div>
+          <div class="mt-6 flex flex-col gap-2">
+            <a id="waHarga1" href="#" class="inline-block rounded-2xl px-4 py-2 border text-sm font-semibold hover:shadow text-center">
+              WhatsApp Pakej Ini →
+            </a>
+            <button
+              class="rounded-2xl px-4 py-2 border text-sm font-semibold hover:shadow add-package-to-cart"
+              data-name="Pakej 15 Batang (1 setiap perisa)"
+              data-sticks="15">
+              Tambah Pakej ke Troli
+            </button>
+          </div>
+        </div>
 
-      <div id="packagesGrid" class="grid md:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+        <!-- Pakej 30 -->
+        <div class="rounded-3xl border p-6 hover:shadow-md transition flex flex-col">
+          <div>
+            <h3 class="font-bold text-xl">30 Batang</h3>
+            <h4 class="font-bold text-sm opacity-80">(2 setiap perisa)</h4>
+            <p class="mt-4 text-3xl font-black">RM30.00</p>
+            <p class="mt-2 text-sm opacity-70">Min. 30 batang (RM1.00 x 30)</p>
+          </div>
+          <div class="mt-6 flex flex-col gap-2">
+            <a id="waHarga2" href="#" class="inline-block rounded-2xl px-4 py-2 border text-sm font-semibold hover:shadow text-center">
+              WhatsApp Pakej Ini →
+            </a>
+            <button
+              class="rounded-2xl px-4 py-2 border text-sm font-semibold hover:shadow add-package-to-cart"
+              data-name="Pakej 30 Batang (2 setiap perisa)"
+              data-sticks="30">
+              Tambah Pakej ke Troli
+            </button>
+          </div>
+        </div>
+
+        <!-- Pakej 50 -->
+        <div class="rounded-3xl border p-6 hover:shadow-md transition flex flex-col">
+          <div>
+            <h3 class="font-bold text-xl">50 Batang</h3>
+            <h4 class="font-bold text-sm opacity-80">(Mix Flavour)</h4>
+            <p class="mt-4 text-3xl font-black">RM50.00</p>
+            <p class="mt-2 text-sm opacity-70">Campur perisa (RM1.00 x 50)</p>
+          </div>
+          <div class="mt-6 flex flex-col gap-2">
+            <a id="waHarga3" href="#" class="inline-block rounded-2xl px-4 py-2 border text-sm font-semibold hover:shadow text-center">
+              WhatsApp Pakej Ini →
+            </a>
+            <button
+              class="rounded-2xl px-4 py-2 border text-sm font-semibold hover:shadow add-package-to-cart"
+              data-name="Pakej 50 Batang (Mix Flavour)"
+              data-sticks="50">
+              Tambah Pakej ke Troli
+            </button>
+          </div>
+        </div>
+
+        <!-- Pakej Majlis -->
+        <div class="rounded-3xl border p-6 hover:shadow-md transition flex flex-col">
+          <div>
+            <h3 class="font-bold text-xl">Pakej Majlis</h3>
+            <h4 class="font-bold text-sm opacity-80">(Mix Flavour)</h4>
+            <p class="mt-4 text-3xl font-black">RM100</p>
+            <p class="mt-2 text-sm opacity-70">100 batang + penghantaran</p>
+          </div>
+          <div class="mt-6 flex flex-col gap-2">
+            <a id="waHarga4" href="#" class="inline-block rounded-2xl px-4 py-2 border text-sm font-semibold hover:shadow text-center">
+              WhatsApp Pakej Ini →
+            </a>
+            <button
+              class="rounded-2xl px-4 py-2 border text-sm font-semibold hover:shadow add-package-to-cart"
+              data-name="Pakej Majlis (100 batang + penghantaran)"
+              data-sticks="100">
+              Tambah Pakej ke Troli
+            </button>
+          </div>
+        </div>
+      </div>
       <p class="mt-6 text-center text-sm opacity-70">* Harga boleh berubah mengikut kos bahan & lokasi.</p>
     </section>
 
-    <!-- TEMPAHAN -->
+    <!-- CTA TEMPAHAN -->
     <section id="tempahan" class="relative">
       <div class="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-yellow-100 via-white to-white"></div>
       <div class="mx-auto max-w-5xl px-4 py-16 text-center">
         <h2 class="text-3xl md:text-4xl font-extrabold">Sedia Buat Tempahan?</h2>
         <p class="mt-2 opacity-80">
-          Tambah perisa atau pakej ke troli, semak pesanan, dan klik <strong>Hantar Pesanan</strong> untuk hantar melalui WhatsApp.
+          Tambah perisa atau pakej ke troli, semak pesanan, dan klik Hantar Pesanan untuk hantar melalui WhatsApp.
         </p>
         <div class="mt-6 flex flex-wrap gap-3 justify-center">
-          <button id="cartBtnCTA"
-                  class="rounded-2xl px-6 py-3 bg-orange-500 text-white font-bold hover:bg-orange-600 shadow flex items-center gap-2">
+          <button id="cartBtnCTA" class="rounded-2xl px-6 py-3 font-semibold hover:shadow flex items-center gap-2 bg-amber-400 border border-amber-500">
             <i class="fa-solid fa-cart-shopping"></i>
             Buka Troli
           </button>
@@ -260,36 +360,20 @@
       </div>
       <div class="divide-y rounded-3xl border overflow-hidden bg-white">
         <details>
-          <summary class="cursor-pointer select-none list-none px-5 py-4 font-semibold hover:bg-gray-50">
-            Adakah aiskrim anda halal?
-          </summary>
-          <div class="px-5 pb-5 text-sm opacity-90">
-            Ya. Semua bahan diperoleh daripada pembekal yang mempunyai pensijilan halal.
-          </div>
+          <summary class="cursor-pointer select-none list-none px-5 py-4 font-semibold hover:bg-gray-50">Adakah aiskrim anda halal?</summary>
+          <div class="px-5 pb-5 text-sm opacity-90">Ya. Semua bahan diperoleh daripada pembekal yang mempunyai pensijilan halal.</div>
         </details>
         <details>
-          <summary class="cursor-pointer select-none list-none px-5 py-4 font-semibold hover:bg-gray-50">
-            Kawasan penghantaran?
-          </summary>
-          <div class="px-5 pb-5 text-sm opacity-90">
-            Penghantaran sekitar Kuantan dan ke seluruh negara. Caj bergantung jarak. Ambil sendiri juga dialu-alukan.
-          </div>
+          <summary class="cursor-pointer select-none list-none px-5 py-4 font-semibold hover:bg-gray-50">Kawasan penghantaran?</summary>
+          <div class="px-5 pb-5 text-sm opacity-90">Penghantaran sekitar Kuantan dan ke seluruh negara. Caj bergantung jarak. Ambil sendiri juga dialu-alukan.</div>
         </details>
         <details>
-          <summary class="cursor-pointer select-none list-none px-5 py-4 font-semibold hover:bg-gray-50">
-            Berapa minimum tempahan?
-          </summary>
-          <div class="px-5 pb-5 text-sm opacity-90">
-            Untuk harga promosi, minimum 50 batang. Pakej majlis tersedia mengikut keperluan.
-          </div>
+          <summary class="cursor-pointer select-none list-none px-5 py-4 font-semibold hover:bg-gray-50">Berapa minimum tempahan?</summary>
+          <div class="px-5 pb-5 text-sm opacity-90">Untuk harga promosi, minimum 50 batang. Pakej majlis tersedia mengikut keperluan.</div>
         </details>
         <details>
-          <summary class="cursor-pointer select-none list-none px-5 py-4 font-semibold hover:bg-gray-50">
-            Cara simpan?
-          </summary>
-          <div class="px-5 pb-5 text-sm opacity-90">
-            Simpan pada -18°C ke bawah. Elakkan kitaran beku-cair berulang untuk kekalkan tekstur.
-          </div>
+          <summary class="cursor-pointer select-none list-none px-5 py-4 font-semibold hover:bg-gray-50">Cara simpan?</summary>
+          <div class="px-5 pb-5 text-sm opacity-90">Simpan pada -18°C ke bawah. Elakkan kitaran beku-cair berulang untuk kekalkan tekstur.</div>
         </details>
       </div>
     </section>
@@ -309,17 +393,14 @@
             Sabtu: 10.00 pagi – 2.00 petang<br/>
             Ahad & Cuti Umum: Tutup
           </p>
-          <a id="waHubungi" href="#"
-             class="mt-4 inline-block rounded-2xl px-4 py-2 bg-green-600 text-white font-semibold hover:bg-green-700 shadow">
+          <a id="waHubungi" href="#" class="mt-4 inline-block rounded-2xl px-4 py-2 font-semibold hover:shadow bg-green-600 text-white border border-green-700">
             Hubungi
           </a>
         </div>
         <div class="rounded-3xl border overflow-hidden grid place-items-center p-6 text-center bg-white">
           <p class="opacity-80">
             Untuk peta, anda boleh letak pautan Google Maps:<br>
-            <a class="underline" href="https://maps.google.com/?q=Kuantan" target="_blank" rel="noopener">
-              Buka di Google Maps
-            </a>
+            <a class="underline" href="https://maps.google.com/?q=Kuantan" target="_blank" rel="noopener">Buka di Google Maps</a>
           </p>
         </div>
       </div>
@@ -331,7 +412,7 @@
     <div class="mx-auto max-w-6xl px-4 py-10 grid md:grid-cols-3 gap-6 items-center">
       <div>
         <div class="flex items-center gap-2">
-          <img src="logo-crema.png" alt="Logo" class="h-10 w-10 rounded-full object-cover"/>
+          <img src="logo-crema.png" alt="Logo AISKRIM MALAYSIA by CREMA H&amp;A ENTERPRISE" class="h-10 w-10 rounded-full object-cover"/>
           <div class="flex flex-col leading-tight">
             <span class="font-extrabold tracking-tight text-sm md:text-base">AISKRIM MALAYSIA</span>
             <span class="text-[11px] md:text-xs uppercase tracking-wide">by CREMA H&amp;A ENTERPRISE</span>
@@ -347,204 +428,129 @@
         <p class="mt-1">TikTok: <a class="underline" href="#">Crema H&amp;A</a></p>
       </div>
 
-      <div class="flex md:justify-end">
-        <a id="waFooter" href="#"
-           class="rounded-2xl px-4 py-2 bg-green-600 text-white font-semibold hover:bg-green-700 shadow flex items-center gap-2 justify-center">
+      <div class="flex md:justify-end gap-2">
+        <a id="waFooter" href="#" class="rounded-2xl px-4 py-2 font-semibold hover:shadow flex items-center gap-2 justify-center bg-green-600 text-white border border-green-700">
           <i class="fa-brands fa-whatsapp text-xl"></i>
           Tempah via WhatsApp
         </a>
+        <button id="adminOpenBtnFooter" class="rounded-2xl px-4 py-2 border font-semibold hover:shadow">
+          Admin
+        </button>
       </div>
     </div>
   </footer>
 
-  <!-- ADMIN MODAL -->
-  <div id="adminModal" class="fixed inset-0 z-[80] hidden">
-    <div id="adminBackdrop" class="absolute inset-0 bg-black/40"></div>
+  <!-- MODAL TROLI -->
+  <div id="cartModal" class="fixed inset-0 z-[60] modal-hidden" aria-hidden="true">
+    <!-- backdrop -->
+    <div class="absolute inset-0 bg-black/40"></div>
 
-    <div id="adminPanel"
-         class="relative max-w-2xl mx-auto mt-16 md:mt-20 bg-white rounded-3xl shadow-xl border overflow-hidden transition-all duration-200 ease-out opacity-0 -translate-y-3">
-      <div class="flex items-center justify-between px-6 py-4 border-b">
-        <h3 class="font-bold text-lg flex items-center gap-2">
-          <i class="fa-solid fa-user-gear"></i>
-          Admin — Stok & Ketersediaan
-        </h3>
-        <div class="flex items-center gap-2">
-          <button id="adminLogoutBtn" type="button" class="hidden text-sm px-3 py-1 rounded-full border hover:bg-gray-50">
-            Log keluar
-          </button>
-          <button id="adminCloseBtn" type="button" class="w-9 h-9 grid place-items-center rounded-full hover:bg-gray-100" aria-label="Tutup">
-            <i class="fa-solid fa-xmark"></i>
-          </button>
-        </div>
-      </div>
+    <!-- panel -->
+    <div class="relative max-w-3xl mx-auto mt-6 md:mt-16 px-3">
+      <div id="cartPanel" class="bg-white rounded-3xl shadow-xl border overflow-hidden cart-panel modal-shell" role="dialog" aria-modal="true" aria-labelledby="cartTitle">
+        <div class="flex items-center justify-between px-6 py-4 border-b">
+          <h3 id="cartTitle" class="font-bold text-lg flex items-center gap-2">
+            <i class="fa-solid fa-cart-shopping"></i>
+            Troli Pesanan
+          </h3>
 
-      <div class="px-6 py-5">
-        <!-- Login view -->
-        <div id="adminLoginView" class="space-y-3">
-          <p class="text-sm opacity-80">Masukkan kata laluan untuk akses admin.</p>
-          <div class="grid md:grid-cols-3 gap-3 items-end">
-            <div class="md:col-span-2">
-              <label class="block text-xs font-semibold mb-1">Kata laluan</label>
-              <input id="adminPassword" type="password" autocomplete="current-password"
-                     class="w-full rounded-xl border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400" />
-            </div>
-            <button id="adminLoginBtn" type="button"
-                    class="rounded-2xl px-4 py-2 bg-orange-500 text-white font-bold hover:bg-orange-600 shadow">
-              Log masuk
+          <div class="flex items-center gap-2">
+            <!-- X close -->
+            <button id="cartCloseX" class="h-9 w-9 grid place-items-center rounded-full border hover:bg-gray-50" aria-label="Tutup Troli">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+            <!-- existing Tutup -->
+            <button id="cartCloseBtn" class="text-sm px-3 py-1 rounded-full border hover:bg-gray-50">
+              Tutup
             </button>
           </div>
-          <p class="text-xs opacity-60">Tip: Kata laluan admin disemak melalui Netlify Function <code>admin-login</code> (server-side).</p>
         </div>
 
-        <!-- Manage view -->
-        <div id="adminManageView" class="hidden">
-          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-            <p class="text-sm opacity-80">Tandakan item yang <strong>Available</strong> atau <strong>Sold Out</strong>.</p>
-            <div class="flex gap-2">
-              <button id="adminSaveBtn" type="button"
-                      class="rounded-2xl px-4 py-2 bg-emerald-600 text-white text-sm font-bold hover:bg-emerald-700">
-                Simpan
-              </button>
-              <button id="adminResetBtn" type="button"
-                      class="rounded-2xl px-4 py-2 border text-sm hover:bg-gray-50">
-                Reset Semua Available
-              </button>
-            </div>
+        <!-- Scroll body -->
+        <div class="modal-body-scroll">
+          <div id="cartEmptyState" class="px-6 py-6 text-center text-sm opacity-70">
+            Troli masih kosong. Tambah perisa atau pakej dari menu <strong>Perisa Popular</strong> atau <strong>Harga</strong>.
           </div>
 
-          <div class="mt-4 grid md:grid-cols-2 gap-4">
+          <div class="px-6 py-4">
+            <table class="w-full text-sm">
+              <thead class="border-b">
+                <tr class="text-left">
+                  <th class="py-2">Item</th>
+                  <th class="py-2 text-center">Kuantiti</th>
+                  <th class="py-2 text-right">Jumlah (RM)</th>
+                  <th class="py-2"></th>
+                </tr>
+              </thead>
+              <tbody id="cartItems"></tbody>
+            </table>
+          </div>
+
+          <!-- Form -->
+          <div class="px-6 pb-6">
             <div class="rounded-2xl border p-4">
-              <h4 class="font-bold text-sm mb-3">Perisa</h4>
-              <div id="adminFlavourList" class="space-y-2"></div>
-            </div>
-            <div class="rounded-2xl border p-4">
-              <h4 class="font-bold text-sm mb-3">Pakej</h4>
-              <div id="adminPackageList" class="space-y-2"></div>
-            </div>
-          </div>
+              <h4 class="font-extrabold text-sm mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-pen-to-square"></i> Maklumat Pesanan
+              </h4>
 
-          <details class="mt-4 rounded-2xl border p-4">
-            <summary class="cursor-pointer font-semibold">Export / Import (backup)</summary>
-            <p class="text-xs opacity-70 mt-2">Copy JSON untuk simpan / backup.</p>
-            <textarea id="adminJsonBox" rows="6" class="mt-2 w-full rounded-xl border px-3 py-2 text-xs font-mono"></textarea>
-            <div class="mt-2 flex flex-wrap gap-2">
-              <button id="adminExportBtn" type="button" class="rounded-2xl px-4 py-2 border text-sm hover:bg-gray-50">Export</button>
-              <button id="adminImportBtn" type="button" class="rounded-2xl px-4 py-2 border text-sm hover:bg-gray-50">Import</button>
-            </div>
-            <p class="text-[11px] opacity-60 mt-2">Nota: Versi ini menyimpan status secara <strong>GLOBAL</strong> melalui server (semua pelawat akan nampak). Export/Import hanya untuk backup.</p>
-          </details>
-        </div>
-      </div>
-    </div>
-  </div>
+              <div class="grid md:grid-cols-2 gap-3">
+                <div>
+                  <label class="text-xs font-semibold opacity-80">Nama (wajib)</label>
+                  <input id="orderName" type="text" class="mt-1 w-full rounded-xl border px-3 py-2 text-sm" placeholder="Contoh: Siti Aminah">
+                  <p id="nameError" class="text-xs text-red-600 mt-1 hidden">Sila isi nama sebelum hantar pesanan.</p>
+                </div>
 
-  <!-- CART MODAL -->
-  <div id="cartModal" class="fixed inset-0 z-[60] hidden">
-    <div id="cartBackdrop" class="absolute inset-0 bg-black/40"></div>
+                <div>
+                  <label class="text-xs font-semibold opacity-80">Tarikh & masa (optional)</label>
+                  <input id="orderDateTime" type="text" class="mt-1 w-full rounded-xl border px-3 py-2 text-sm" placeholder="Contoh: 12/1 3:00pm">
+                </div>
+              </div>
 
-    <div id="cartPanel"
-         class="relative max-w-xl mx-auto mt-16 md:mt-20 bg-white rounded-3xl shadow-xl border flex flex-col max-h-[90vh] overflow-hidden transition-all duration-200 ease-out opacity-0 -translate-y-3">
-      <!-- Header -->
-      <div class="flex items-center justify-between px-6 py-4 border-b">
-        <h3 class="font-bold text-lg flex items-center gap-2">
-          <i class="fa-solid fa-cart-shopping"></i>
-          Troli Pesanan
-        </h3>
-        <div class="flex items-center gap-2">
-          <button id="cartCloseIcon" type="button" aria-label="Tutup troli"
-                  class="w-9 h-9 grid place-items-center rounded-full hover:bg-gray-100">
-            <i class="fa-solid fa-xmark"></i>
-          </button>
-          <button id="cartCloseBtn" type="button" class="text-sm px-3 py-1 rounded-full border hover:bg-gray-50">
-            Tutup
-          </button>
-        </div>
-      </div>
+              <div class="mt-3">
+                <label class="text-xs font-semibold opacity-80">Kaedah</label>
+                <div class="mt-2 flex flex-wrap gap-3 text-sm">
+                  <label class="inline-flex items-center gap-2 border rounded-xl px-3 py-2 cursor-pointer">
+                    <input type="radio" name="deliveryMode" value="Pickup" id="modePickup">
+                    Pickup (Ambil sendiri)
+                  </label>
+                  <label class="inline-flex items-center gap-2 border rounded-xl px-3 py-2 cursor-pointer">
+                    <input type="radio" name="deliveryMode" value="Delivery" id="modeDelivery" checked>
+                    Delivery (Penghantaran)
+                  </label>
+                </div>
+              </div>
 
-      <!-- Scrollable content -->
-      <div id="cartScrollArea" class="flex-1 overflow-y-auto">
-        <div id="cartEmptyState" class="px-6 py-6 text-center text-sm opacity-70">
-          Troli masih kosong. Tambah perisa atau pakej dari menu <strong>Perisa Popular</strong> atau <strong>Harga</strong>.
-        </div>
+              <div class="mt-3">
+                <label class="text-xs font-semibold opacity-80">Lokasi penghantaran / pickup (optional)</label>
+                <input id="orderLocation" type="text" class="mt-1 w-full rounded-xl border px-3 py-2 text-sm" placeholder="Contoh: Taman Tas, Kuantan">
+              </div>
 
-        <div id="cartItemsWrapper" class="px-6 py-4">
-          <table class="w-full text-sm">
-            <thead class="border-b">
-              <tr class="text-left">
-                <th class="py-2">Item</th>
-                <th class="py-2 text-center">Kuantiti</th>
-                <th class="py-2 text-right">Jumlah (RM)</th>
-                <th class="py-2"></th>
-              </tr>
-            </thead>
-            <tbody id="cartItems"></tbody>
-          </table>
-        </div>
-
-        <!-- Order form -->
-        <div class="px-6 py-4 bg-white border-t space-y-3">
-          <div>
-            <label class="block text-xs font-semibold mb-1">Nama <span class="text-red-600">*</span></label>
-            <input id="orderName" type="text" placeholder="Contoh: Siti Aminah"
-                   class="w-full rounded-xl border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400" />
-            <p class="mt-1 text-[11px] opacity-70">* Nama wajib diisi untuk hantar pesanan.</p>
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold mb-2">Kaedah</label>
-            <div class="grid grid-cols-2 gap-2">
-              <label class="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm cursor-pointer hover:bg-gray-50">
-                <input type="radio" name="orderMethod" value="Pickup" class="accent-orange-500" checked>
-                <span>Pickup</span>
-              </label>
-              <label class="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm cursor-pointer hover:bg-gray-50">
-                <input type="radio" name="orderMethod" value="Delivery" class="accent-orange-500">
-                <span>Delivery</span>
-              </label>
+              <div class="mt-3">
+                <label class="text-xs font-semibold opacity-80">Catatan lain (optional)</label>
+                <textarea id="orderNotes" rows="2" class="mt-1 w-full rounded-xl border px-3 py-2 text-sm" placeholder="Contoh: Tolong asingkan perisa jagung"></textarea>
+              </div>
             </div>
           </div>
-
-          <div>
-            <label class="block text-xs font-semibold mb-1">Tarikh & Masa Penghantaran / Ambil</label>
-            <input id="orderDate" type="datetime-local"
-                   class="w-full rounded-xl border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400" />
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold mb-1">Lokasi Penghantaran / Ambil</label>
-            <textarea id="orderLocation" rows="2" placeholder="Contoh: SK Pandan, Kuantan"
-                      class="w-full rounded-xl border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"></textarea>
-          </div>
-
-          <p class="text-xs text-center opacity-70">Pesanan akan dihantar melalui WhatsApp untuk pengesahan.</p>
         </div>
-      </div>
 
-      <!-- Sticky action bar -->
-      <div class="border-t px-6 py-4 bg-gray-50">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <!-- Sticky footer actions -->
+        <div class="border-t px-6 py-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between bg-gray-50">
           <div class="text-sm">
             <div>Jumlah batang: <span id="cartTotalQty" class="font-semibold">0</span></div>
             <div>Jumlah harga: <span id="cartTotalPrice" class="font-semibold">RM0.00</span></div>
             <div class="text-xs opacity-70 mt-1">Harga tetap RM1.00 sebatang.</div>
           </div>
 
-          <div class="flex flex-col sm:flex-row gap-2">
-            <button id="cartSendOrderBtn" type="button"
-                    class="rounded-2xl px-4 py-2 bg-emerald-600 text-white text-sm font-bold hover:bg-emerald-700 flex items-center justify-center gap-2">
+          <div class="flex flex-col sm:flex-row gap-2 mt-2 md:mt-0">
+            <button id="cartClearBtn" class="rounded-2xl px-4 py-2 border text-sm hover:bg-white">
+              Kosongkan Troli
+            </button>
+
+            <button id="sendOrderBtn"
+              class="rounded-2xl px-4 py-2 border bg-green-600 text-white text-sm font-extrabold hover:bg-green-700 flex items-center justify-center gap-2"
+            >
               <i class="fa-brands fa-whatsapp text-lg"></i>
               Hantar Pesanan
-            </button>
-
-            <button id="cartCheckoutBtn" type="button"
-                    class="rounded-2xl px-4 py-2 bg-green-600 text-white text-sm font-semibold hover:bg-green-700 flex items-center justify-center gap-2">
-              <i class="fa-brands fa-whatsapp text-lg"></i>
-              Checkout
-            </button>
-
-            <button id="cartClearBtn" type="button"
-                    class="rounded-2xl px-4 py-2 border border-red-300 text-red-600 text-sm hover:bg-red-50">
-              Kosongkan Troli
             </button>
           </div>
         </div>
@@ -552,350 +558,362 @@
     </div>
   </div>
 
-  <!-- VISITOR WIDGET (TOP RIGHT) -->
-  <div id="visitorWidget"
-       class="fixed top-24 right-4 z-[70] bg-white/95 border rounded-2xl shadow-lg px-4 py-3 text-xs md:text-sm flex flex-col gap-1
-              transition-opacity transition-transform duration-200 ease-out widget-show">
-    <div>
-      <span class="font-semibold">Pelawat (browser ini):</span>
-      <span id="visitorCounter">0</span>
-    </div>
-    <div>
-      <span class="font-semibold">Tarikh & masa:</span>
-      <span id="dateTimeDisplay">-</span>
-    </div>
-  </div>
+  <!-- MODAL ADMIN -->
+  <div id="adminModal" class="fixed inset-0 z-[80] modal-hidden" aria-hidden="true">
+    <div class="absolute inset-0 bg-black/50"></div>
 
-  <!-- STICKY BOTTOM CTA (MOBILE): SEMAK PESANAN -->
-  <div id="bottomOrderBar" class="fixed bottom-0 inset-x-0 z-[55] bg-white border-t shadow md:hidden hidden">
-    <div class="max-w-6xl mx-auto px-4 py-3">
-      <button id="bottomReviewOrderBtn"
-              class="w-full rounded-2xl px-4 py-3 bg-orange-500 text-white font-bold flex items-center justify-center gap-2 hover:bg-orange-600 shadow">
-        <i class="fa-solid fa-cart-shopping"></i>
-        Semak Pesanan
-        <span id="bottomOrderQty"
-              class="ml-2 inline-flex items-center justify-center rounded-full text-xs px-2 py-0.5 bg-white text-gray-900 font-bold">0</span>
-      </button>
+    <div class="relative max-w-3xl mx-auto mt-6 md:mt-16 px-3">
+      <div id="adminPanel" class="bg-white rounded-3xl shadow-xl border overflow-hidden cart-panel modal-shell" role="dialog" aria-modal="true" aria-labelledby="adminTitle">
+        <div class="flex items-center justify-between px-6 py-4 border-b">
+          <h3 id="adminTitle" class="font-black text-lg flex items-center gap-2">
+            <i class="fa-solid fa-user-shield"></i>
+            Admin: Sold Out / Available
+          </h3>
+
+          <div class="flex items-center gap-2">
+            <button id="adminCloseX" class="h-9 w-9 grid place-items-center rounded-full border hover:bg-gray-50" aria-label="Tutup Admin">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+            <button id="adminCloseBtn" class="text-sm px-3 py-1 rounded-full border hover:bg-gray-50">Tutup</button>
+          </div>
+        </div>
+
+        <div class="modal-body-scroll px-6 py-5">
+          <div id="adminLoginBox" class="rounded-2xl border p-4">
+            <p class="font-extrabold mb-2">Login Admin</p>
+            <p class="text-sm opacity-80 mb-3">Masukkan password admin (set di Netlify Environment Variables).</p>
+
+            <div class="flex flex-col sm:flex-row gap-2">
+              <input id="adminPassword" type="password" class="w-full rounded-xl border px-3 py-2 text-sm" placeholder="Password admin">
+              <button id="adminLoginBtn" class="rounded-xl px-4 py-2 text-sm font-extrabold bg-gray-900 text-white hover:opacity-90">
+                Login
+              </button>
+            </div>
+            <p id="adminLoginMsg" class="text-sm mt-2"></p>
+          </div>
+
+          <div id="adminControlBox" class="mt-4 rounded-2xl border p-4 hidden">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+              <div>
+                <p class="font-extrabold">Senarai Perisa (GLOBAL)</p>
+                <p class="text-xs opacity-70">Toggle OFF = Sold Out (pelawat tak boleh add to cart).</p>
+              </div>
+              <div class="flex gap-2">
+                <button id="adminRefreshBtn" class="rounded-xl px-3 py-2 border text-sm font-semibold hover:shadow">Refresh</button>
+                <button id="adminSaveBtn" class="rounded-xl px-4 py-2 bg-green-600 text-white text-sm font-extrabold hover:bg-green-700">
+                  Simpan Perubahan
+                </button>
+              </div>
+            </div>
+
+            <div id="adminFlavourList" class="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+
+            <p id="adminSaveMsg" class="text-sm mt-3"></p>
+          </div>
+        </div>
+
+        <div class="border-t px-6 py-4 bg-gray-50 text-xs opacity-70">
+          Tip: Jika token tamat, login semula. (Token sah 12 jam)
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
-    // ====== SETTING ======
-    const PHONE = '60148315668'; // tanpa +
-    const PRICE_PER_STICK = 1.0; // RM1.00 sebatang
-    const AUTO_OPEN_CART_MODE = "always"; // always
+    // =========================
+    // CONFIG
+    // =========================
+    const PHONE = '60148315668'; // WhatsApp number (tanpa +)
+    const PRICE_PER_STICK = 1.0;
+
+    // Netlify Functions endpoints (relative)
+    const AVAIL_API = "/.netlify/functions/get-availability";
+    const ADMIN_LOGIN_API = "/.netlify/functions/admin-login";
+    const ADMIN_SAVE_API = "/.netlify/functions/admin-update-availability";
+
+    // auto refresh availability setiap 30s (public)
+    const AVAIL_REFRESH_MS = 30000;
+
+    // Auto buka troli bila tambah item
+    const AUTO_OPEN_CART_MODE = "always"; // requested
 
     const msgGeneral = 'Hai, saya nak tempah CREMA aiskrim Malaysia.';
-    const msgP15 = 'Hai, saya berminat 15 batang (RM15.00).';
-    const msgP30 = 'Hai, saya berminat 30 batang (RM30.00).';
-    const msgP50 = 'Hai, saya berminat 50 batang (RM50.00).';
-    const msgP100 = 'Hai, saya berminat Pakej Majlis (RM100).';
+    const msg15 = 'Hai, saya berminat 15 batang (RM15.00).';
+    const msg30 = 'Hai, saya berminat 30 batang (RM30.00).';
+    const msg50 = 'Hai, saya berminat 50 batang (RM50.00).';
+    const msgPakej = 'Hai, saya berminat Pakej Majlis (RM100).';
 
     const wa = (text) => `https://wa.me/${PHONE}?text=${encodeURIComponent(text)}`;
 
-    // ====== DATA: PERISA & PAKEJ ======
     const FLAVOURS = [
-      { name:'Double Coklat', img:'double-coklat.png', desc:'Lemak berkrim, klasik sepanjang zaman.' },
-      { name:'Coklat Cheese', img:'coklat-cheese.png', desc:'Koko pekat dengan tekstur lembut.' },
-      { name:'Choki-Choki', img:'choki-choki.png', desc:'Manis coklat sebenar, menyegarkan.' },
-      { name:'Jagung Original', img:'jagung-original.png', desc:'Harum manis, kegemaran ramai.' },
-      { name:'Jagung Coklat', img:'jagung-coklat.png', desc:'Jagung bercampur coklat, manis berlemak.' },
-      { name:'Jagung Cheese', img:'jagung-cheese.png', desc:'Keenakan jagung lemak berkrim.' },
-      { name:'Bandung Original', img:'bandung-original.png', desc:'Rasa lokal yang memikat.' },
-      { name:'Bandung Coklat', img:'bandung-coklat.png', desc:'Lemak, lembut, wangi.' },
-      { name:'Matcha Cheese', img:'matcha-cheese.png', desc:'Kelainan matcha dan cheese memikat rasa.' },
-      { name:'Matcha Coklat', img:'matcha-coklat.png', desc:'Keenakan matcha bersama coklat berkrim.' },
-      { name:'Keladi Coklat', img:'keladi-coklat.png', desc:'Rasa klasik yang memikat.' },
-      { name:'Keladi Cheese', img:'keladi-cheese.png', desc:'Gabungan keladi dan cheese gaya moden.' },
-      { name:'Tutti Fruiti', img:'tutti.png', desc:'Keenakan campuran buah-buahan.' },
-      { name:'Blueberry', img:'blueberry.png', desc:'Rasa beri yang manis dan menyegarkan.' },
-      { name:'Oreo', img:'oreo.png', desc:'Biskut rangup dalam krim.' },
+      { name: 'Double Coklat', img: 'double-coklat.png', desc: 'Lemak berkrim, klasik sepanjang zaman.' },
+      { name: 'Coklat Cheese', img: 'coklat-cheese.png', desc: 'Koko pekat dengan tekstur lembut.' },
+      { name: 'Choki-Choki', img: 'choki-choki.png', desc: 'Manis coklat sebenar, menyegarkan.' },
+      { name: 'Jagung Original', img: 'jagung-original.png', desc: 'Harum manis, kegemaran ramai.' },
+      { name: 'Jagung Coklat', img: 'jagung-coklat.png', desc: 'Jagung bercampur coklat, manis berlemak.' },
+      { name: 'Jagung Cheese', img: 'jagung-cheese.png', desc: 'Keenakan jagung lemak berkrim.' },
+      { name: 'Bandung Original', img: 'bandung-original.png', desc: 'Rasa lokal yang memikat.' },
+      { name: 'Bandung Coklat', img: 'bandung-coklat.png', desc: 'Lemak, lembut, wangi.' },
+      { name: 'Matcha Cheese', img: 'matcha-cheese.png', desc: 'Kelainan matcha dan cheese memikat rasa.' },
+      { name: 'Matcha Coklat', img: 'matcha-coklat.png', desc: 'Keenakan matcha bersama coklat berkrim.' },
+      { name: 'Keladi Coklat', img: 'keladi-coklat.png', desc: 'Rasa klasik yang memikat.' },
+      { name: 'Keladi Cheese', img: 'keladi-cheese.png', desc: 'Gabungan keladi dan cheese gaya moden.' },
+      { name: 'Tutti Fruiti', img: 'tutti.png', desc: 'Keenakan campuran buah-buahan.' },
+      { name: 'Blueberry', img: 'blueberry.png', desc: 'Rasa beri yang manis dan menyegarkan.' },
+      { name: 'Oreo', img: 'oreo.png', desc: 'Biskut rangup dalam krim.' }
     ];
 
-    const PACKAGES = [
-      { name:'Pakej 15 Batang (1 setiap perisa)', sticks:15, price:15, title:'15 Batang', sub:'(1 setiap perisa)', note:'Min. 15 batang (RM1.00 x 15)', waMsg: msgP15 },
-      { name:'Pakej 30 Batang (2 setiap perisa)', sticks:30, price:30, title:'30 Batang', sub:'(2 setiap perisa)', note:'Min. 30 batang (RM1.00 x 30)', waMsg: msgP30 },
-      { name:'Pakej 50 Batang (Mix Flavour)', sticks:50, price:50, title:'50 Batang', sub:'(Mix Flavour)', note:'Campur perisa (RM1.00 x 50)', waMsg: msgP50 },
-      { name:'Pakej Majlis (100 batang + penghantaran)', sticks:100, price:100, title:'Pakej Majlis', sub:'(Mix Flavour)', note:'100 batang + penghantaran', waMsg: msgP100 },
-    ];
+    // availability: { [flavourName]: true/false } true=available, false=sold out
+    let availability = {}; // will load from remote
+    let isAdminEditing = false;
 
-    // ====== GLOBAL SOLD-OUT (Netlify Functions) ======
-    // Anda perlu create functions ini di Netlify:
-    // - /.netlify/functions/get-availability
-    // - /.netlify/functions/admin-login
-    // - /.netlify/functions/admin-update-availability
-    const AVAIL_API = '/.netlify/functions/get-availability';
-    const ADMIN_LOGIN_API = '/.netlify/functions/admin-login';
-    const ADMIN_SAVE_API = '/.netlify/functions/admin-update-availability';
-
-    const LS_AVAIL_FALLBACK_KEY = 'cremaAvailabilityFallback';
-    const SS_ADMIN_TOKEN_KEY = 'cremaAdminToken';
-
-    const LS_NAME_KEY = 'cremaOrderName';
-
-    // ====== CART STORAGE ======
-    // cart: { [name]: { units:number, sticksPerUnit:number } }
+    // cart: { [name]: { units, sticksPerUnit } }
     const cart = {};
 
-    function initCart() {
-      FLAVOURS.forEach(f => { cart[f.name] = { units: 0, sticksPerUnit: 1 }; });
+    // perisa selector qty (before add)
+    const selectionQty = {}; // { [flavourName]: number }
+
+    // =========================
+    // Helpers
+    // =========================
+    function safeJsonParse(str, fallback) {
+      try { return JSON.parse(str); } catch { return fallback; }
+    }
+
+    function getAdminToken() {
+      return sessionStorage.getItem("cremaAdminToken") || "";
+    }
+
+    function setAdminToken(token) {
+      sessionStorage.setItem("cremaAdminToken", token);
+    }
+
+    function initCartBase() {
+      FLAVOURS.forEach(f => {
+        if (!cart[f.name]) cart[f.name] = { units: 0, sticksPerUnit: 1 };
+        if (selectionQty[f.name] == null) selectionQty[f.name] = 1;
+      });
     }
 
     function getCartSummary() {
       const items = Object.values(cart);
-      const totalSticks = items.reduce((sum, it) => sum + (it.units * it.sticksPerUnit), 0);
+      const totalSticks = items.reduce((sum, item) => sum + item.units * item.sticksPerUnit, 0);
       const totalPrice = totalSticks * PRICE_PER_STICK;
       return { totalSticks, totalPrice };
     }
 
-    function addToCart(name, sticksPerUnit=1, unitsToAdd=1) {
-      if (!name) return;
-      const n = Math.max(1, parseInt(unitsToAdd, 10) || 1);
-      if (!cart[name]) cart[name] = { units: 0, sticksPerUnit };
-      cart[name].sticksPerUnit = sticksPerUnit;
-      cart[name].units += n;
-      renderCartItems();
+    function updateCountsUI() {
+      const { totalSticks } = getCartSummary();
+
+      const cartCount = document.getElementById('cartCount');
+      const cartCountMobile = document.getElementById('cartCountMobile');
+      if (cartCount) cartCount.textContent = totalSticks;
+      if (cartCountMobile) cartCountMobile.textContent = totalSticks;
+
+      const reviewCount = document.getElementById('reviewOrderCount');
+      if (reviewCount) reviewCount.textContent = totalSticks;
+
+      const reviewBtn = document.getElementById('reviewOrderBtn');
+      if (reviewBtn) {
+        if (totalSticks > 0) {
+          reviewBtn.classList.add("bg-amber-400", "border-amber-500");
+          reviewBtn.classList.remove("border");
+        } else {
+          reviewBtn.classList.remove("bg-amber-400", "border-amber-500");
+          reviewBtn.classList.add("border");
+        }
+      }
+
+      const cartTotalQty = document.getElementById('cartTotalQty');
+      const cartTotalPrice = document.getElementById('cartTotalPrice');
+      if (cartTotalQty) cartTotalQty.textContent = totalSticks;
+      if (cartTotalPrice) cartTotalPrice.textContent = 'RM' + (totalSticks * PRICE_PER_STICK).toFixed(2);
+
+      const emptyState = document.getElementById('cartEmptyState');
+      if (emptyState) {
+        if (totalSticks === 0) emptyState.classList.remove('hidden');
+        else emptyState.classList.add('hidden');
+      }
     }
 
-    function clearCart() {
-      Object.keys(cart).forEach(k => { cart[k].units = 0; });
-      // remove non-flavours
-      Object.keys(cart).forEach(k => {
-        const isFlavour = FLAVOURS.some(f => f.name === k);
-        if (!isFlavour) delete cart[k];
-      });
-      renderCartItems();
-    }
-
-    // ====== AVAILABILITY ======
-    function getDefaultAvailability() {
-      const a = {};
-      FLAVOURS.forEach(f => a[f.name] = true);
-      PACKAGES.forEach(p => a[p.name] = true);
-      return a;
-    }
-
+    // =========================
+    // Availability (Remote)
+    // =========================
     async function loadAvailabilityRemote() {
       try {
-        const res = await fetch(AVAIL_API, { cache: 'no-store' });
+        const res = await fetch(AVAIL_API, { cache: "no-store" });
         const data = await res.json();
-        if (data && data.ok && data.availability && typeof data.availability === 'object') {
-          return data.availability;
+        if (data && data.ok && typeof data.availability === "object") {
+          // Normalize keys: any missing flavours -> default true
+          const out = {};
+          FLAVOURS.forEach(f => {
+            out[f.name] = (data.availability[f.name] !== undefined) ? !!data.availability[f.name] : true;
+          });
+          // Save fallback locally for offline
+          localStorage.setItem("cremaAvailabilityFallback", JSON.stringify(out));
+          return out;
         }
-      } catch (e) {}
+      } catch {}
       return null;
     }
 
     function loadAvailabilityFallback() {
-      try {
-        const raw = localStorage.getItem(LS_AVAIL_FALLBACK_KEY);
-        if (!raw) return getDefaultAvailability();
-        const parsed = JSON.parse(raw);
-        return { ...getDefaultAvailability(), ...parsed };
-      } catch (e) {
-        return getDefaultAvailability();
-      }
-    }
-
-    function saveAvailabilityFallback(avail) {
-      try { localStorage.setItem(LS_AVAIL_FALLBACK_KEY, JSON.stringify(avail)); } catch (e) {}
-    }
-
-    function getAdminToken() {
-      try { return sessionStorage.getItem(SS_ADMIN_TOKEN_KEY) || ''; } catch (e) { return ''; }
-    }
-    function setAdminToken(token) {
-      try {
-        if (token) sessionStorage.setItem(SS_ADMIN_TOKEN_KEY, token);
-        else sessionStorage.removeItem(SS_ADMIN_TOKEN_KEY);
-      } catch (e) {}
-    }
-    function isAdminLoggedIn() { return !!getAdminToken(); }
-
-    function ensureSoldOutBadge(card) {
-      let badge = card.querySelector('.sold-out-badge');
-      if (badge) return;
-      card.classList.add('relative');
-      badge = document.createElement('div');
-      badge.className = 'sold-out-badge absolute top-3 left-3 rounded-full px-3 py-1 text-xs font-bold bg-red-600 text-white shadow';
-      badge.textContent = 'SOLD OUT';
-      card.appendChild(badge);
-    }
-
-    function applyAvailabilityToUI(avail) {
-      window.__cremaAvail = avail;
-
-      // Flavours
-      document.querySelectorAll('[data-flavour]').forEach(card => {
-        const name = card.getAttribute('data-flavour');
-        const ok = avail[name] !== false;
-
-        const addBtn = card.querySelector('.add-to-cart');
-        const input = card.querySelector('.qty-input');
-
-        if (ok) {
-          card.classList.remove('sold-out');
-          card.querySelector('.sold-out-badge')?.remove();
-          if (addBtn) { addBtn.disabled = false; addBtn.textContent = 'Tambah ke Troli'; }
-          if (input) input.disabled = false;
-        } else {
-          card.classList.add('sold-out');
-          ensureSoldOutBadge(card);
-          if (addBtn) { addBtn.disabled = true; addBtn.textContent = 'Sold Out'; }
-          if (input) input.disabled = true;
-        }
+      const cached = safeJsonParse(localStorage.getItem("cremaAvailabilityFallback") || "{}", {});
+      const out = {};
+      FLAVOURS.forEach(f => {
+        out[f.name] = (cached[f.name] !== undefined) ? !!cached[f.name] : true;
       });
+      return out;
+    }
 
-      // Packages
-      document.querySelectorAll('[data-item]').forEach(card => {
-        const name = card.getAttribute('data-item');
-        const ok = avail[name] !== false;
-        const addBtn = card.querySelector('.add-package-to-cart');
+    function applyAvailabilityToUI() {
+      // Update cards states
+      FLAVOURS.forEach(f => {
+        const isAvail = availability[f.name] !== false; // default true
+        const card = document.querySelector(`[data-flavour-card="${cssEscape(f.name)}"]`);
+        if (!card) return;
 
-        if (ok) {
-          card.classList.remove('sold-out');
-          card.querySelector('.sold-out-badge')?.remove();
-          if (addBtn) { addBtn.disabled = false; addBtn.textContent = 'Tambah Pakej ke Troli'; }
+        const badge = card.querySelector(".soldout-badge");
+        const addBtn = card.querySelector(`[data-add-flavour="${cssEscape(f.name)}"]`);
+        const minusBtn = card.querySelector(`[data-sel-minus="${cssEscape(f.name)}"]`);
+        const plusBtn = card.querySelector(`[data-sel-plus="${cssEscape(f.name)}"]`);
+
+        if (isAvail) {
+          card.classList.remove("card-dim");
+          if (badge) badge.classList.add("hidden");
+          if (addBtn) { addBtn.disabled = false; addBtn.classList.remove("opacity-50", "cursor-not-allowed"); }
+          if (minusBtn) minusBtn.disabled = false;
+          if (plusBtn) plusBtn.disabled = false;
         } else {
-          card.classList.add('sold-out');
-          ensureSoldOutBadge(card);
-          if (addBtn) { addBtn.disabled = true; addBtn.textContent = 'Sold Out'; }
+          card.classList.add("card-dim");
+          if (badge) badge.classList.remove("hidden");
+          if (addBtn) { addBtn.disabled = true; addBtn.classList.add("opacity-50", "cursor-not-allowed"); }
+          if (minusBtn) minusBtn.disabled = true;
+          if (plusBtn) plusBtn.disabled = true;
         }
       });
     }
 
-    function isItemAvailable(name) {
-      const avail = window.__cremaAvail || getDefaultAvailability();
-      return avail[name] !== false;
+    function cssEscape(str) {
+      // minimal escape for attribute selector usage
+      return String(str).replace(/"/g, '&quot;');
     }
 
-    // ====== RENDER UI: FLAVOURS + PACKAGES ======
+    // =========================
+    // Render Flavours
+    // =========================
     function renderFlavourCards() {
-      const grid = document.getElementById('flavoursGrid');
+      const grid = document.getElementById("flavourGrid");
       if (!grid) return;
-      grid.innerHTML = '';
+      grid.innerHTML = "";
 
       FLAVOURS.forEach(f => {
-        const card = document.createElement('div');
-        card.className = 'rounded-3xl border overflow-hidden hover:shadow-md transition flex flex-col';
-        card.setAttribute('data-flavour', f.name);
+        const isAvail = availability[f.name] !== false;
+
+        const card = document.createElement("div");
+        card.className = `relative rounded-3xl border overflow-hidden hover:shadow-md transition bg-white ${isAvail ? "" : "card-dim"}`;
+        card.setAttribute("data-flavour-card", f.name);
 
         card.innerHTML = `
-          <div class="aspect-[4/5] overflow-hidden bg-white">
+          <div class="soldout-badge ${isAvail ? "hidden" : ""}">SOLD OUT</div>
+
+          <div class="aspect-[4/5] overflow-hidden bg-white grid place-items-center">
             <img src="${f.img}" alt="${f.name}" class="w-full h-full object-contain"/>
           </div>
-          <div class="p-4 flex flex-col flex-1">
+
+          <div class="p-4 flex flex-col h-full">
             <div class="flex items-center justify-between gap-2">
               <h3 class="font-bold text-lg">${f.name}</h3>
               <span class="inline-flex items-center rounded-full border px-2 py-1 text-xs font-medium">Halal</span>
             </div>
             <p class="mt-1 text-sm font-semibold text-emerald-700">RM1.00 / batang</p>
-            <p class="mt-1 text-sm opacity-80 min-h-[3rem]">${f.desc}</p>
+            <p class="mt-1 text-sm opacity-80 flex-1">${f.desc}</p>
 
-            <div class="mt-auto pt-3 flex items-center justify-between gap-2">
-              <span class="text-xs opacity-70">Kuantiti</span>
-              <div class="inline-flex items-center gap-1 border rounded-full px-2 py-1">
-                <button type="button" class="qty-btn px-2 text-sm" data-action="minus" aria-label="Kurangkan">-</button>
-                <input type="number" min="1" value="1" class="qty-input w-14 text-center text-sm outline-none bg-transparent" aria-label="Kuantiti"/>
-                <button type="button" class="qty-btn px-2 text-sm" data-action="plus" aria-label="Tambah">+</button>
+            <!-- Qty selector + Add -->
+            <div class="mt-3 flex items-center justify-between gap-2">
+              <div class="qty-stepper inline-flex items-center gap-1 border rounded-2xl px-2 py-1">
+                <button class="rounded-xl border bg-white hover:bg-gray-50"
+                  data-sel-minus="${f.name}" aria-label="Kurang kuantiti ${f.name}">-</button>
+                <span class="text-sm font-extrabold" data-sel-value="${f.name}">${selectionQty[f.name] || 1}</span>
+                <button class="rounded-xl border bg-white hover:bg-gray-50"
+                  data-sel-plus="${f.name}" aria-label="Tambah kuantiti ${f.name}">+</button>
               </div>
+
+              <button
+                class="rounded-2xl px-4 py-2 text-sm font-extrabold border hover:shadow bg-amber-400 border-amber-500"
+                data-add-flavour="${f.name}"
+                ${isAvail ? "" : "disabled"}
+              >
+                Tambah
+              </button>
             </div>
-
-            <button type="button"
-                    class="add-to-cart mt-2 w-full rounded-2xl px-3 py-2 text-sm font-semibold bg-gray-900 text-white hover:opacity-90"
-                    data-name="${f.name}">
-              Tambah ke Troli
-            </button>
           </div>
         `;
+
         grid.appendChild(card);
       });
+
+      applyAvailabilityToUI();
     }
 
-    function renderPackageCards() {
-      const grid = document.getElementById('packagesGrid');
+    function bindFlavourCardEvents() {
+      const grid = document.getElementById("flavourGrid");
       if (!grid) return;
-      grid.innerHTML = '';
 
-      PACKAGES.forEach((p, idx) => {
-        const card = document.createElement('div');
-        card.className = 'rounded-3xl border p-6 hover:shadow-md transition flex flex-col';
-        card.setAttribute('data-item', p.name);
+      grid.addEventListener("click", (e) => {
+        const t = e.target;
 
-        const waId = `waHarga${idx+1}`;
+        // minus
+        if (t && t.getAttribute && t.getAttribute("data-sel-minus")) {
+          const name = t.getAttribute("data-sel-minus");
+          const cur = selectionQty[name] || 1;
+          selectionQty[name] = Math.max(1, cur - 1);
+          const valEl = document.querySelector(`[data-sel-value="${cssEscape(name)}"]`);
+          if (valEl) valEl.textContent = selectionQty[name];
+        }
 
-        card.innerHTML = `
-          <div>
-            <h3 class="font-bold text-xl">${p.title}</h3>
-            <h4 class="font-bold text-sm opacity-80">${p.sub}</h4>
-            <p class="mt-4 text-3xl font-black">RM${p.price}.00</p>
-            <p class="mt-2 text-sm opacity-70">${p.note}</p>
-          </div>
-          <div class="mt-6 flex flex-col gap-2">
-            <a id="${waId}" href="#"
-               class="inline-block rounded-2xl px-4 py-2 border text-sm font-semibold hover:shadow text-center">
-              WhatsApp Pakej Ini →
-            </a>
-            <button class="add-package-to-cart rounded-2xl px-4 py-2 border text-sm font-semibold hover:shadow"
-                    data-name="${p.name}" data-sticks="${p.sticks}">
-              Tambah Pakej ke Troli
-            </button>
-          </div>
-        `;
-        grid.appendChild(card);
-      });
+        // plus
+        if (t && t.getAttribute && t.getAttribute("data-sel-plus")) {
+          const name = t.getAttribute("data-sel-plus");
+          const cur = selectionQty[name] || 1;
+          selectionQty[name] = Math.min(999, cur + 1);
+          const valEl = document.querySelector(`[data-sel-value="${cssEscape(name)}"]`);
+          if (valEl) valEl.textContent = selectionQty[name];
+        }
 
-      // Set whatsapp links for packages
-      PACKAGES.forEach((p, idx) => {
-        const el = document.getElementById(`waHarga${idx+1}`);
-        if (el) el.href = wa(p.waMsg);
+        // add
+        if (t && t.getAttribute && t.getAttribute("data-add-flavour")) {
+          const name = t.getAttribute("data-add-flavour");
+          if (availability[name] === false) return; // sold out
+          const qty = selectionQty[name] || 1;
+          addToCart(name, 1, qty);
+          if (AUTO_OPEN_CART_MODE === "always") {
+            openCart({ focusSend: true });
+          }
+        }
       });
     }
 
-    // ====== CART RENDER ======
-    function updateCartCounts() {
-      const { totalSticks, totalPrice } = getCartSummary();
+    // =========================
+    // Cart Logic
+    // =========================
+    function addToCart(name, sticksPerUnit = 1, unitsToAdd = 1) {
+      if (!name) return;
+      if (!cart[name]) cart[name] = { units: 0, sticksPerUnit };
+      cart[name].sticksPerUnit = sticksPerUnit;
+      cart[name].units += Math.max(1, unitsToAdd);
+      renderCartItems();
+      updateCountsUI();
+    }
 
-      document.getElementById('cartCount') && (document.getElementById('cartCount').textContent = totalSticks);
-      document.getElementById('cartCountMobile') && (document.getElementById('cartCountMobile').textContent = totalSticks);
-
-      document.getElementById('cartTotalQty') && (document.getElementById('cartTotalQty').textContent = totalSticks);
-      document.getElementById('cartTotalPrice') && (document.getElementById('cartTotalPrice').textContent = 'RM' + totalPrice.toFixed(2));
-
-      document.getElementById('perisaOrderQty') && (document.getElementById('perisaOrderQty').textContent = totalSticks);
-      document.getElementById('bottomOrderQty') && (document.getElementById('bottomOrderQty').textContent = totalSticks);
-
-      // Top "Semak troli anda" qty badges
-      document.getElementById('checkCartQty') && (document.getElementById('checkCartQty').textContent = totalSticks);
-      document.getElementById('checkCartQtyMobile') && (document.getElementById('checkCartQtyMobile').textContent = totalSticks);
-
-      // Empty state
-      const empty = document.getElementById('cartEmptyState');
-      if (empty) {
-        if (totalSticks === 0) empty.classList.remove('hidden');
-        else empty.classList.add('hidden');
-      }
-
-      // Bottom bar on mobile
-      const bottomBar = document.getElementById('bottomOrderBar');
-      if (bottomBar) {
-        if (totalSticks > 0) bottomBar.classList.remove('hidden');
-        else bottomBar.classList.add('hidden');
-      }
-
-      // Highlight "Semak Troli Anda" buttons if have items
-      const highlight = (btn) => {
-        if (!btn) return;
-        if (totalSticks > 0) {
-          btn.classList.add('bg-orange-500','text-white','border-orange-500','shadow');
-          btn.classList.remove('text-orange-600','border-orange-400','bg-transparent');
-        } else {
-          btn.classList.remove('bg-orange-500','text-white','border-orange-500','shadow');
-          btn.classList.add('text-orange-600','border-orange-400');
-        }
-      };
-      highlight(document.getElementById('checkCartBtn'));
-      highlight(document.getElementById('checkCartBtnMobile'));
+    function clearCart() {
+      Object.keys(cart).forEach(key => { cart[key].units = 0; });
+      Object.keys(cart).forEach(key => {
+        const isFlavour = FLAVOURS.some(f => f.name === key);
+        if (!isFlavour) delete cart[key];
+      });
+      renderCartItems();
+      updateCountsUI();
     }
 
     function renderCartItems() {
@@ -903,13 +921,22 @@
       if (!tbody) return;
       tbody.innerHTML = '';
 
+      const flavourNames = FLAVOURS.map(f => f.name);
+
       const renderRow = (name, item, isFlavour) => {
         const totalSticks = item.units * item.sticksPerUnit;
         const totalPrice = totalSticks * PRICE_PER_STICK;
 
-        const removeHtml = isFlavour ? '' : `<button type="button" class="text-xs text-red-600 remove-item-btn" data-name="${name}">Buang</button>`;
-        const infoLine = item.units > 0 ? `${item.units}x unit ≈ ${totalSticks} batang @ RM1.00` : `0 unit (0 batang)`;
+        const removeHtml = isFlavour
+          ? ''
+          : `<button class="text-xs text-red-600 remove-item-btn" data-name="${name}">Buang</button>`;
+
+        const infoLine = item.units > 0
+          ? `${item.units}x unit ≈ ${totalSticks} batang @ RM1.00`
+          : `0 unit (0 batang)`;
+
         const totalLine = totalSticks > 0 ? `RM${totalPrice.toFixed(2)}` : `RM0.00`;
+        const priceDetail = totalSticks > 0 ? `RM1.00 × ${totalSticks} batang` : `Tiada batang dipesan`;
 
         const row = document.createElement('tr');
         row.className = 'border-b last:border-0';
@@ -920,115 +947,135 @@
           </td>
           <td class="py-2 px-2 text-center align-top">
             <div class="inline-flex items-center gap-1 border rounded-full px-2 py-1">
-              <button type="button" class="px-2 text-sm cart-qty-btn" data-name="${name}" data-action="minus">-</button>
+              <button class="px-2 text-sm qty-btn" data-name="${name}" data-action="minus" aria-label="Kurang ${name}">-</button>
               <span class="px-2 text-sm">${item.units}</span>
-              <button type="button" class="px-2 text-sm cart-qty-btn" data-name="${name}" data-action="plus">+</button>
+              <button class="px-2 text-sm qty-btn" data-name="${name}" data-action="plus" aria-label="Tambah ${name}">+</button>
             </div>
           </td>
           <td class="py-2 pl-2 text-right align-top">
             <div>${totalLine}</div>
-            <div class="text-[11px] opacity-60">RM1.00 × ${totalSticks} batang</div>
+            <div class="text-[11px] opacity-60">${priceDetail}</div>
           </td>
-          <td class="py-2 pl-2 text-right align-top">${removeHtml}</td>
+          <td class="py-2 pl-2 text-right align-top">
+            ${removeHtml}
+          </td>
         `;
         tbody.appendChild(row);
       };
 
-      // Flavours first
-      FLAVOURS.forEach(f => {
-        const name = f.name;
+      // flavours first
+      flavourNames.forEach(name => {
         const item = cart[name] || { units: 0, sticksPerUnit: 1 };
         cart[name] = item;
         renderRow(name, item, true);
       });
 
-      // Non-flavours (packages)
+      // packages etc
       Object.entries(cart).forEach(([name, item]) => {
-        const isFlavour = FLAVOURS.some(f => f.name === name);
-        if (isFlavour) return;
+        if (flavourNames.includes(name)) return;
         renderRow(name, item, false);
       });
 
-      updateCartCounts();
+      updateCountsUI();
     }
 
-    // ====== MODAL OPEN/CLOSE + FOCUS TRAP ======
-    let __cartTrapHandler = null;
-    let __lastFocusedEl = null;
-    let __nextFocusId = null;
+    // =========================
+    // WhatsApp Message
+    // =========================
+    function buildWhatsAppOrderMessage() {
+      const { totalSticks, totalPrice } = getCartSummary();
 
-    function getFocusable(container) {
+      if (totalSticks === 0) return msgGeneral;
+
+      const name = (document.getElementById("orderName")?.value || "").trim();
+      const dateTime = (document.getElementById("orderDateTime")?.value || "").trim();
+      const location = (document.getElementById("orderLocation")?.value || "").trim();
+      const notes = (document.getElementById("orderNotes")?.value || "").trim();
+      const mode = document.getElementById("modePickup")?.checked ? "Pickup" : "Delivery";
+
+      let lines = [];
+      lines.push('Hai, saya nak buat tempahan CREMA aiskrim Malaysia. Berikut butiran pesanan saya:');
+      lines.push('');
+      lines.push(`Nama: ${name}`);
+      lines.push(`Kaedah: ${mode}`);
+      if (dateTime) lines.push(`Tarikh & masa: ${dateTime}`);
+      if (location) lines.push(`Lokasi: ${location}`);
+      if (notes) lines.push(`Catatan: ${notes}`);
+
+      lines.push('');
+      lines.push('Perincian Pesanan (harga setiap jenis RM1.00/batang):');
+
+      Object.entries(cart).forEach(([itemName, item]) => {
+        const totalItemSticks = item.units * item.sticksPerUnit;
+        if (totalItemSticks <= 0) return;
+        const itemPrice = totalItemSticks * PRICE_PER_STICK;
+        lines.push(
+          `• ${itemName} — ${item.units}x unit (± ${totalItemSticks} batang, RM1.00 x ${totalItemSticks} = RM${itemPrice.toFixed(2)})`
+        );
+      });
+
+      lines.push('');
+      lines.push(`Jumlah batang: ${totalSticks}`);
+      lines.push(`Jumlah anggaran harga: RM${totalPrice.toFixed(2)} (RM1.00 x ${totalSticks})`);
+
+      return lines.join('\n');
+    }
+
+    function persistName() {
+      const el = document.getElementById("orderName");
+      if (!el) return;
+      localStorage.setItem("cremaOrderName", el.value || "");
+    }
+
+    function loadPersistedName() {
+      const el = document.getElementById("orderName");
+      if (!el) return;
+      const saved = localStorage.getItem("cremaOrderName") || "";
+      if (saved && !el.value) el.value = saved;
+    }
+
+    // =========================
+    // Modal: open/close + focus trap + ESC
+    // =========================
+    let lastFocusedEl = null;
+    function getFocusableElements(container) {
       if (!container) return [];
-      const sel = [
-        'a[href]','button:not([disabled])','textarea:not([disabled])',
-        'input:not([disabled])','select:not([disabled])','[tabindex]:not([tabindex="-1"])'
-      ];
-      return Array.from(container.querySelectorAll(sel.join(','))).filter(el => el.offsetParent !== null);
+      return Array.from(container.querySelectorAll(
+        'a[href], button:not([disabled]), textarea, input, select, details, summary, [tabindex]:not([tabindex="-1"])'
+      )).filter(el => !el.hasAttribute("disabled") && !el.getAttribute("aria-hidden"));
     }
 
-    function activateTrap(panel) {
-      __lastFocusedEl = document.activeElement;
-
-      const handler = (e) => {
-        if (e.key !== 'Tab') return;
-        const modal = document.getElementById('cartModal');
-        if (!modal || modal.classList.contains('hidden')) return;
-
-        const f = getFocusable(panel);
-        if (!f.length) { e.preventDefault(); panel.focus(); return; }
-
-        const first = f[0];
-        const last = f[f.length - 1];
-
-        if (e.shiftKey) {
-          if (document.activeElement === first || document.activeElement === panel) {
-            e.preventDefault(); last.focus();
-          }
-        } else {
-          if (document.activeElement === last) {
-            e.preventDefault(); first.focus();
-          }
-        }
-      };
-      __cartTrapHandler = handler;
-      document.addEventListener('keydown', handler);
-    }
-
-    function deactivateTrap() {
-      if (__cartTrapHandler) {
-        document.removeEventListener('keydown', __cartTrapHandler);
-        __cartTrapHandler = null;
-      }
-      if (__lastFocusedEl && typeof __lastFocusedEl.focus === 'function') {
-        try { __lastFocusedEl.focus(); } catch (e) {}
-      }
-      __lastFocusedEl = null;
-    }
-
-    function openCartWithFocus(focusId) {
-      __nextFocusId = focusId || null;
-      openCart();
-    }
-
-    function openCart() {
+    function openCart({ focusSend = false } = {}) {
       const modal = document.getElementById('cartModal');
       const panel = document.getElementById('cartPanel');
       if (!modal || !panel) return;
 
-      modal.classList.remove('hidden');
-      requestAnimationFrame(() => panel.classList.add('modal-enter'));
-      panel.classList.remove('modal-leave');
+      lastFocusedEl = document.activeElement;
+
+      modal.classList.remove('modal-hidden');
+      modal.classList.add('modal-open');
+      modal.setAttribute("aria-hidden", "false");
+
+      // animate
+      requestAnimationFrame(() => {
+        panel.classList.add("show");
+      });
 
       renderCartItems();
-      activateTrap(panel);
+      loadPersistedName();
 
-      hideVisitorWidgetMobile();
-
+      // focus target
       setTimeout(() => {
-        const target = document.getElementById(__nextFocusId || 'cartSendOrderBtn');
-        if (target) target.focus();
-        __nextFocusId = null;
-      }, 0);
+        if (focusSend) {
+          const btn = document.getElementById("sendOrderBtn");
+          if (btn) btn.focus();
+        } else {
+          const btn = document.getElementById("cartCloseX");
+          if (btn) btn.focus();
+        }
+      }, 60);
+
+      document.body.style.overflow = "hidden";
     }
 
     function closeCart() {
@@ -1036,505 +1083,464 @@
       const panel = document.getElementById('cartPanel');
       if (!modal || !panel) return;
 
-      panel.classList.remove('modal-enter');
-      panel.classList.add('modal-leave');
-
-      deactivateTrap();
-      setTimeout(() => modal.classList.add('hidden'), 200);
-
-      scheduleVisitorWidgetReturn();
+      panel.classList.remove("show");
+      setTimeout(() => {
+        modal.classList.add('modal-hidden');
+        modal.classList.remove('modal-open');
+        modal.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+        if (lastFocusedEl && lastFocusedEl.focus) lastFocusedEl.focus();
+      }, 180);
     }
 
-    // ====== ORDER FORM ======
-    function getSelectedOrderMethod() {
-      const r = document.querySelector('input[name="orderMethod"]:checked');
-      return r ? r.value : 'Pickup';
-    }
-
-    function validateOrderForm() {
-      const el = document.getElementById('orderName');
-      const name = (el?.value || '').trim();
-      if (!name) {
-        alert('Sila isi Nama sebelum hantar pesanan.');
-        el && el.focus();
-        return false;
-      }
-      return true;
-    }
-
-    function saveOrderName() {
-      const name = (document.getElementById('orderName')?.value || '').trim();
-      try { if (name) localStorage.setItem(LS_NAME_KEY, name); } catch (e) {}
-    }
-
-    function loadOrderName() {
-      const el = document.getElementById('orderName');
-      if (!el) return;
-      try {
-        const stored = localStorage.getItem(LS_NAME_KEY);
-        if (stored && !el.value) el.value = stored;
-      } catch (e) {}
-    }
-
-    function buildWhatsAppOrderMessage() {
-      const { totalSticks, totalPrice } = getCartSummary();
-      if (totalSticks === 0) return msgGeneral;
-
-      const name = (document.getElementById('orderName')?.value || '').trim() || '-';
-      const date = document.getElementById('orderDate')?.value || '-';
-      const location = (document.getElementById('orderLocation')?.value || '').trim() || '-';
-      const method = getSelectedOrderMethod();
-
-      const lines = [];
-      lines.push('Hai, saya nak buat tempahan CREMA aiskrim Malaysia. Berikut butiran pesanan saya:');
-      lines.push('');
-      lines.push('Perincian Pesanan (RM1.00/batang):');
-
-      Object.entries(cart).forEach(([itemName, item]) => {
-        const sticks = item.units * item.sticksPerUnit;
-        if (sticks <= 0) return;
-        const price = sticks * PRICE_PER_STICK;
-        lines.push(`• ${itemName} — ${item.units}x unit (± ${sticks} batang) = RM${price.toFixed(2)}`);
-      });
-
-      lines.push('');
-      lines.push(`Jumlah batang: ${totalSticks}`);
-      lines.push(`Jumlah anggaran harga: RM${totalPrice.toFixed(2)} (RM1.00 x ${totalSticks})`);
-      lines.push('');
-      lines.push('Maklumat Pelanggan:');
-      lines.push(`- Nama: ${name}`);
-      lines.push(`- Kaedah: ${method}`);
-      lines.push(`- Tarikh & Masa: ${date}`);
-      lines.push(`- Lokasi: ${location}`);
-
-      return lines.join('\n');
-    }
-
-    // ====== VISITOR WIDGET (mobile only auto-hide) ======
-    const isMobile = () => window.matchMedia('(max-width: 767px)').matches;
-    let __cartOpen = false;
-    let __showWidgetOnScroll = false;
-
-    function hideVisitorWidgetMobile() {
-      __cartOpen = true;
-      if (!isMobile()) return; // desktop never hide
-      const w = document.getElementById('visitorWidget');
-      if (!w) return;
-      w.classList.add('widget-hide');
-      w.classList.remove('widget-show');
-    }
-
-    function scheduleVisitorWidgetReturn() {
-      __cartOpen = false;
-      if (!isMobile()) return;
-      __showWidgetOnScroll = true; // show only after scroll
-    }
-
-    function showVisitorWidgetNow() {
-      if (!isMobile()) return;
-      if (__cartOpen) return;
-      const w = document.getElementById('visitorWidget');
-      if (!w) return;
-      w.classList.remove('widget-hide');
-      w.classList.add('widget-show');
-    }
-
-    // ====== VISITOR COUNTER (local browser) + DATETIME ======
-    function initVisitorCounterLocal() {
-      const key = 'cremaVisitorCount';
-      let count = 0;
-      try {
-        const stored = localStorage.getItem(key);
-        if (stored !== null) count = parseInt(stored, 10) || 0;
-        count += 1;
-        localStorage.setItem(key, String(count));
-      } catch (e) { count = 1; }
-      document.getElementById('visitorCounter') && (document.getElementById('visitorCounter').textContent = count);
-    }
-
-    function initDateTimeWidget() {
-      const el = document.getElementById('dateTimeDisplay');
-      const update = () => {
-        const now = new Date();
-        const formatted = now.toLocaleString('ms-MY', { dateStyle: 'short', timeStyle: 'medium' });
-        el && (el.textContent = formatted);
-      };
-      update();
-      setInterval(update, 1000);
-    }
-
-    // ====== ADMIN ======
     function openAdmin() {
-      const modal = document.getElementById('adminModal');
-      const panel = document.getElementById('adminPanel');
+      const modal = document.getElementById("adminModal");
+      const panel = document.getElementById("adminPanel");
       if (!modal || !panel) return;
-      modal.classList.remove('hidden');
-      requestAnimationFrame(() => panel.classList.add('modal-enter'));
-      panel.classList.remove('modal-leave');
-      renderAdminUI();
+
+      lastFocusedEl = document.activeElement;
+
+      modal.classList.remove("modal-hidden");
+      modal.classList.add("modal-open");
+      modal.setAttribute("aria-hidden", "false");
+
+      requestAnimationFrame(() => panel.classList.add("show"));
+
+      document.body.style.overflow = "hidden";
+
+      setTimeout(() => {
+        const token = getAdminToken();
+        if (token) {
+          // already logged in
+          showAdminControls(true);
+          renderAdminList();
+          const saveBtn = document.getElementById("adminSaveBtn");
+          if (saveBtn) saveBtn.focus();
+        } else {
+          const pw = document.getElementById("adminPassword");
+          if (pw) pw.focus();
+        }
+      }, 60);
     }
 
     function closeAdmin() {
-      const modal = document.getElementById('adminModal');
-      const panel = document.getElementById('adminPanel');
+      const modal = document.getElementById("adminModal");
+      const panel = document.getElementById("adminPanel");
       if (!modal || !panel) return;
-      panel.classList.remove('modal-enter');
-      panel.classList.add('modal-leave');
-      setTimeout(() => modal.classList.add('hidden'), 200);
+
+      panel.classList.remove("show");
+      setTimeout(() => {
+        modal.classList.add("modal-hidden");
+        modal.classList.remove("modal-open");
+        modal.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+        isAdminEditing = false;
+        if (lastFocusedEl && lastFocusedEl.focus) lastFocusedEl.focus();
+      }, 180);
     }
 
-    function renderAdminUI() {
-      const loginView = document.getElementById('adminLoginView');
-      const manageView = document.getElementById('adminManageView');
-      const logoutBtn = document.getElementById('adminLogoutBtn');
+    // Focus trap (cart + admin)
+    function handleTrap(e, modalId, panelId) {
+      if (e.key !== "Tab") return;
+      const modal = document.getElementById(modalId);
+      const panel = document.getElementById(panelId);
+      if (!modal || !panel) return;
+      if (modal.classList.contains("modal-hidden")) return;
 
-      const loggedIn = isAdminLoggedIn();
-      loginView && loginView.classList.toggle('hidden', loggedIn);
-      manageView && manageView.classList.toggle('hidden', !loggedIn);
-      logoutBtn && logoutBtn.classList.toggle('hidden', !loggedIn);
+      const focusables = getFocusableElements(panel);
+      if (focusables.length === 0) return;
 
-      if (!loggedIn) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
 
-      const avail = window.__cremaAvail || loadAvailabilityFallback();
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
 
-      // Flavour toggles
-      const fWrap = document.getElementById('adminFlavourList');
-      if (fWrap) {
-        fWrap.innerHTML = '';
-        FLAVOURS.forEach(f => {
-          const checked = avail[f.name] !== false;
-          const row = document.createElement('label');
-          row.className = 'flex items-center justify-between gap-3 rounded-xl border px-3 py-2 text-sm';
-          row.innerHTML = `
-            <span class="font-semibold">${f.name}</span>
-            <span class="flex items-center gap-2">
-              <span class="text-xs opacity-70">${checked ? 'Available' : 'Sold Out'}</span>
-              <input type="checkbox" class="admin-toggle accent-orange-500" data-item="${f.name}" ${checked ? 'checked' : ''} />
-            </span>
-          `;
-          fWrap.appendChild(row);
-        });
+    // =========================
+    // Admin functions
+    // =========================
+    function showAdminControls(isLoggedIn) {
+      const loginBox = document.getElementById("adminLoginBox");
+      const controlBox = document.getElementById("adminControlBox");
+      if (!loginBox || !controlBox) return;
+
+      if (isLoggedIn) {
+        loginBox.classList.add("hidden");
+        controlBox.classList.remove("hidden");
+      } else {
+        loginBox.classList.remove("hidden");
+        controlBox.classList.add("hidden");
+      }
+    }
+
+    function renderAdminList() {
+      const wrap = document.getElementById("adminFlavourList");
+      if (!wrap) return;
+      wrap.innerHTML = "";
+      isAdminEditing = true;
+
+      FLAVOURS.forEach(f => {
+        const isAvail = availability[f.name] !== false;
+        const card = document.createElement("div");
+        card.className = "rounded-2xl border p-3 flex items-center justify-between gap-3";
+        card.innerHTML = `
+          <div>
+            <div class="font-extrabold text-sm">${f.name}</div>
+            <div class="text-xs opacity-70">${isAvail ? "Available" : "Sold Out"}</div>
+          </div>
+
+          <label class="inline-flex items-center gap-2 cursor-pointer select-none">
+            <span class="text-xs font-semibold ${isAvail ? "text-emerald-700" : "text-red-600"}">${isAvail ? "ON" : "OFF"}</span>
+            <input type="checkbox" class="h-5 w-5" data-admin-toggle="${f.name}" ${isAvail ? "checked" : ""}>
+          </label>
+        `;
+        wrap.appendChild(card);
+      });
+    }
+
+    async function adminLogin() {
+      const msg = document.getElementById("adminLoginMsg");
+      if (msg) msg.textContent = "";
+
+      const pw = (document.getElementById("adminPassword")?.value || "").trim();
+      if (!pw) {
+        if (msg) msg.textContent = "Sila masukkan password.";
+        if (msg) msg.className = "text-sm mt-2 text-red-600";
+        return;
       }
 
-      // Package toggles
-      const pWrap = document.getElementById('adminPackageList');
-      if (pWrap) {
-        pWrap.innerHTML = '';
-        PACKAGES.forEach(p => {
-          const checked = avail[p.name] !== false;
-          const row = document.createElement('label');
-          row.className = 'flex items-center justify-between gap-3 rounded-xl border px-3 py-2 text-sm';
-          row.innerHTML = `
-            <span class="font-semibold">${p.name}</span>
-            <span class="flex items-center gap-2">
-              <span class="text-xs opacity-70">${checked ? 'Available' : 'Sold Out'}</span>
-              <input type="checkbox" class="admin-toggle accent-orange-500" data-item="${p.name}" ${checked ? 'checked' : ''} />
-            </span>
-          `;
-          pWrap.appendChild(row);
+      try {
+        const res = await fetch(ADMIN_LOGIN_API, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ password: pw })
         });
+        const data = await res.json();
+        if (data && data.ok && data.token) {
+          setAdminToken(data.token);
+          if (msg) {
+            msg.textContent = "Login berjaya.";
+            msg.className = "text-sm mt-2 text-emerald-700";
+          }
+          showAdminControls(true);
+          renderAdminList();
+        } else {
+          if (msg) {
+            msg.textContent = "Password salah / gagal login.";
+            msg.className = "text-sm mt-2 text-red-600";
+          }
+        }
+      } catch {
+        if (msg) {
+          msg.textContent = "Gagal connect. Cuba lagi.";
+          msg.className = "text-sm mt-2 text-red-600";
+        }
+      }
+    }
+
+    async function adminSaveAvailability() {
+      const msg = document.getElementById("adminSaveMsg");
+      if (msg) msg.textContent = "";
+
+      const token = getAdminToken();
+      if (!token) {
+        if (msg) {
+          msg.textContent = "Token admin tiada. Sila login semula.";
+          msg.className = "text-sm mt-3 text-red-600";
+        }
+        showAdminControls(false);
+        return;
       }
 
-      const box = document.getElementById('adminJsonBox');
-      box && (box.value = JSON.stringify(avail, null, 2));
-    }
-
-    async function adminLogin(password) {
-      const res = await fetch(ADMIN_LOGIN_API, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ password })
+      // build availability from toggles
+      const next = {};
+      FLAVOURS.forEach(f => {
+        const cb = document.querySelector(`[data-admin-toggle="${cssEscape(f.name)}"]`);
+        next[f.name] = cb ? !!cb.checked : (availability[f.name] !== false);
       });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data.ok || !data.token) throw new Error(data.error || 'login_failed');
-      return data.token;
+
+      try {
+        const res = await fetch(ADMIN_SAVE_API, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+          },
+          body: JSON.stringify({ availability: next })
+        });
+        const data = await res.json();
+        if (data && data.ok) {
+          availability = next;
+          applyAvailabilityToUI();
+          renderFlavourCards(); // refresh labels + disabled
+          if (msg) {
+            msg.textContent = "Disimpan. Sold Out/Available kini GLOBAL untuk semua pelawat.";
+            msg.className = "text-sm mt-3 text-emerald-700";
+          }
+        } else {
+          if (msg) {
+            msg.textContent = "Gagal simpan. Cuba login semula.";
+            msg.className = "text-sm mt-3 text-red-600";
+          }
+        }
+      } catch {
+        if (msg) {
+          msg.textContent = "Gagal simpan (network).";
+          msg.className = "text-sm mt-3 text-red-600";
+        }
+      }
     }
 
-    async function saveAvailabilityRemote(avail, token) {
-      const res = await fetch(ADMIN_SAVE_API, {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          'authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ availability: avail })
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data.ok) throw new Error(data.error || 'save_failed');
-      return true;
-    }
-
-    // ====== DOM READY ======
+    // =========================
+    // DOMContentLoaded
+    // =========================
     document.addEventListener('DOMContentLoaded', async () => {
-      // Year
-      document.getElementById('year') && (document.getElementById('year').textContent = new Date().getFullYear());
-
       // WhatsApp links
-      const setHref = (id, text) => { const el = document.getElementById(id); if (el) el.href = wa(text); };
+      const setHref = (id, text) => {
+        const el = document.getElementById(id);
+        if (el) el.href = wa(text);
+      };
       setHref('waTop', msgGeneral);
       setHref('waTopMobile', msgGeneral);
       setHref('waCTA1', msgGeneral);
+      setHref('waHarga1', msg15);
+      setHref('waHarga2', msg30);
+      setHref('waHarga3', msg50);
+      setHref('waHarga4', msgPakej);
       setHref('waHubungi', msgGeneral);
       setHref('waFooter', msgGeneral);
 
-      // Render cards
-      renderFlavourCards();
-      renderPackageCards();
+      // year
+      const y = document.getElementById('year');
+      if (y) y.textContent = new Date().getFullYear();
 
-      // Init cart
-      initCart();
-
-      // Load availability (GLOBAL if functions exist; else fallback)
-      let avail = await loadAvailabilityRemote();
-      if (!avail) avail = loadAvailabilityFallback();
-      applyAvailabilityToUI(avail);
-
-      // Visitor widget
-      initVisitorCounterLocal();
-      initDateTimeWidget();
-
-      // Restore name
-      loadOrderName();
-
-      // Menu mobile
+      // mobile menu
       const menuBtn = document.getElementById('menuBtn');
       const menuPanel = document.getElementById('menuPanel');
       if (menuBtn && menuPanel) {
         menuBtn.addEventListener('click', () => menuPanel.classList.toggle('hidden'));
-        menuPanel.querySelectorAll('.menu-link').forEach(a => a.addEventListener('click', () => menuPanel.classList.add('hidden')));
+        menuPanel.querySelectorAll('.menu-link').forEach(link => {
+          link.addEventListener('click', () => menuPanel.classList.add('hidden'));
+        });
       }
 
-      // Show widget again after scroll (mobile only)
-      window.addEventListener('scroll', () => {
-        if (__showWidgetOnScroll) {
-          __showWidgetOnScroll = false;
-          showVisitorWidgetNow();
+      // init
+      initCartBase();
+
+      // load availability remote then render
+      const remote = await loadAvailabilityRemote();
+      availability = remote || loadAvailabilityFallback();
+      renderFlavourCards();
+      bindFlavourCardEvents();
+
+      // auto refresh availability
+      setInterval(async () => {
+        if (isAdminEditing) return;
+        const r = await loadAvailabilityRemote();
+        if (r) {
+          availability = r;
+          applyAvailabilityToUI();
+          renderFlavourCards();
         }
-      }, { passive: true });
+      }, AVAIL_REFRESH_MS);
 
-      // ====== Flavour qty stepper + add to cart ======
-      document.querySelectorAll('[data-flavour]').forEach(card => {
-        const input = card.querySelector('.qty-input');
-        const name = card.getAttribute('data-flavour');
+      // Cart open buttons
+      const cartBtn = document.getElementById('cartBtn');
+      const cartBtnMobile = document.getElementById('cartBtnMobile');
+      const cartBtnCTA = document.getElementById('cartBtnCTA');
+      if (cartBtn) cartBtn.addEventListener('click', () => openCart({ focusSend: false }));
+      if (cartBtnMobile) cartBtnMobile.addEventListener('click', () => openCart({ focusSend: false }));
+      if (cartBtnCTA) cartBtnCTA.addEventListener('click', () => openCart({ focusSend: false }));
 
-        if (input) {
-          input.addEventListener('input', () => {
-            let v = parseInt(input.value, 10);
-            if (!v || v < 1) v = 1;
-            input.value = String(v);
-          });
-        }
-
-        card.querySelectorAll('.qty-btn').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const v0 = parseInt(input.value, 10) || 1;
-            const action = btn.getAttribute('data-action');
-            const v = action === 'plus' ? (v0 + 1) : Math.max(1, v0 - 1);
-            input.value = String(v);
-          });
+      // Semak pesanan (after perisa)
+      const reviewBtn = document.getElementById("reviewOrderBtn");
+      if (reviewBtn) {
+        reviewBtn.addEventListener("click", () => {
+          openCart({ focusSend: true });
         });
+      }
 
-        const addBtn = card.querySelector('.add-to-cart');
-        if (addBtn) {
-          addBtn.addEventListener('click', () => {
-            if (!isItemAvailable(name)) { alert('Maaf, item ini Sold Out.'); return; }
-            const qty = parseInt(input?.value, 10) || 1;
-            addToCart(name, 1, qty);
-            if (input) input.value = '1';
-            if (AUTO_OPEN_CART_MODE === "always") openCartWithFocus('cartSendOrderBtn');
-          });
-        }
-      });
+      // Close cart
+      const cartCloseBtn = document.getElementById('cartCloseBtn');
+      const cartCloseX = document.getElementById('cartCloseX');
+      const cartModal = document.getElementById('cartModal');
+      if (cartCloseBtn) cartCloseBtn.addEventListener('click', closeCart);
+      if (cartCloseX) cartCloseX.addEventListener('click', closeCart);
 
-      // ====== Package add to cart ======
-      document.querySelectorAll('.add-package-to-cart').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const name = btn.getAttribute('data-name');
-          const sticks = parseInt(btn.getAttribute('data-sticks'), 10) || 0;
-          if (!name || sticks <= 0) return;
-          if (!isItemAvailable(name)) { alert('Maaf, item ini Sold Out.'); return; }
-          addToCart(name, sticks, 1);
-          if (AUTO_OPEN_CART_MODE === "always") openCartWithFocus('cartSendOrderBtn');
+      // click backdrop closes
+      if (cartModal) {
+        cartModal.addEventListener('click', (e) => {
+          // only backdrop (not panel)
+          if (e.target === cartModal) closeCart();
         });
-      });
+      }
 
-      // ====== Open cart buttons ======
-      const openCartBtns = [
-        document.getElementById('cartBtn'),
-        document.getElementById('cartBtnMobile'),
-        document.getElementById('cartBtnCTA'),
-        document.getElementById('perisaCheckOrderBtn'),
-        document.getElementById('bottomReviewOrderBtn'),
-        document.getElementById('checkCartBtn'),
-        document.getElementById('checkCartBtnMobile')
-      ].filter(Boolean);
+      // Cart items events (delegation)
+      const cartItems = document.getElementById('cartItems');
+      if (cartItems) {
+        cartItems.addEventListener('click', (e) => {
+          const target = e.target;
 
-      openCartBtns.forEach(b => b.addEventListener('click', () => openCartWithFocus('cartSendOrderBtn')));
+          // +/- qty
+          if (target.classList && target.classList.contains('qty-btn')) {
+            const name = target.getAttribute('data-name');
+            const action = target.getAttribute('data-action');
+            const item = cart[name];
+            if (!item) return;
 
-      // ====== Close cart ======
-      document.getElementById('cartCloseBtn')?.addEventListener('click', closeCart);
-      document.getElementById('cartCloseIcon')?.addEventListener('click', closeCart);
-      document.getElementById('cartBackdrop')?.addEventListener('click', closeCart);
-
-      // ====== Cart +/- and remove (delegation on tbody ONLY) ======
-      const cartTbody = document.getElementById('cartItems');
-      if (cartTbody) {
-        cartTbody.addEventListener('click', (e) => {
-          const t = e.target;
-          if (!(t instanceof HTMLElement)) return;
-
-          if (t.classList.contains('cart-qty-btn')) {
-            const name = t.getAttribute('data-name');
-            const action = t.getAttribute('data-action');
-            if (!name || !cart[name]) return;
-
-            if (action === 'plus') cart[name].units += 1;
-            else {
-              cart[name].units = Math.max(0, cart[name].units - 1);
-              // remove non-flavour at 0
+            if (action === 'plus') {
+              item.units += 1;
+            } else if (action === 'minus') {
+              item.units = Math.max(0, item.units - 1);
+              // remove non-flavour when 0
               const isFlavour = FLAVOURS.some(f => f.name === name);
-              if (!isFlavour && cart[name].units === 0) delete cart[name];
+              if (item.units === 0 && !isFlavour) delete cart[name];
             }
             renderCartItems();
           }
 
-          if (t.classList.contains('remove-item-btn')) {
-            const name = t.getAttribute('data-name');
-            if (!name) return;
+          // remove non-flavour
+          if (target.classList && target.classList.contains('remove-item-btn')) {
+            const name = target.getAttribute('data-name');
             const isFlavour = FLAVOURS.some(f => f.name === name);
-            if (!isFlavour) { delete cart[name]; renderCartItems(); }
+            if (name && cart[name] && !isFlavour) {
+              delete cart[name];
+              renderCartItems();
+            }
           }
         });
       }
 
-      // ====== Clear cart (confirm) — ONLY this button ======
+      // Clear cart (confirm only here)
       const cartClearBtn = document.getElementById('cartClearBtn');
       if (cartClearBtn) {
-        cartClearBtn.addEventListener('click', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          if (confirm('Anda pasti mahu kosongkan troli?')) clearCart();
+        cartClearBtn.addEventListener('click', () => {
+          if (confirm('Anda pasti mahu kosongkan troli?')) {
+            clearCart();
+          }
         });
       }
 
-      // ====== Send order — NEVER triggers confirm ======
-      const cartSendBtn = document.getElementById('cartSendOrderBtn');
-      if (cartSendBtn) {
-        cartSendBtn.addEventListener('click', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
+      // Persist name on input
+      const orderName = document.getElementById("orderName");
+      if (orderName) {
+        orderName.addEventListener("input", persistName);
+      }
+      loadPersistedName();
 
+      // Send order
+      const sendBtn = document.getElementById("sendOrderBtn");
+      if (sendBtn) {
+        sendBtn.addEventListener("click", () => {
           const { totalSticks } = getCartSummary();
-          if (totalSticks === 0) { alert('Troli masih kosong. Sila tambah item dahulu.'); return; }
-          if (!validateOrderForm()) return;
 
-          saveOrderName();
-          window.open(wa(buildWhatsAppOrderMessage()), '_blank');
+          // validate name
+          const nameEl = document.getElementById("orderName");
+          const nameError = document.getElementById("nameError");
+          const name = (nameEl?.value || "").trim();
+
+          if (!name) {
+            if (nameError) nameError.classList.remove("hidden");
+            if (nameEl) nameEl.focus();
+            return;
+          }
+          if (nameError) nameError.classList.add("hidden");
+
+          if (totalSticks === 0) {
+            alert("Troli masih kosong. Sila tambah item dahulu.");
+            return;
+          }
+
+          // open WhatsApp
+          const msg = buildWhatsAppOrderMessage();
+          window.open(wa(msg), "_blank");
         });
       }
 
-      // Checkout (optional)
-      document.getElementById('cartCheckoutBtn')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const msg = buildWhatsAppOrderMessage();
-        window.open(wa(msg), '_blank');
+      // Packages add
+      document.querySelectorAll('.add-package-to-cart').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const name = btn.getAttribute('data-name');
+          const sticks = parseInt(btn.getAttribute('data-sticks'), 10) || 0;
+          if (name && sticks > 0) {
+            addToCart(name, sticks, 1);
+            if (AUTO_OPEN_CART_MODE === "always") openCart({ focusSend: true });
+          }
+        });
       });
 
-      // ESC close cart/admin
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-          const cartModal = document.getElementById('cartModal');
-          if (cartModal && !cartModal.classList.contains('hidden')) closeCart();
-          const adminModal = document.getElementById('adminModal');
-          if (adminModal && !adminModal.classList.contains('hidden')) closeAdmin();
-        }
-      });
+      // Admin open buttons
+      const adminBtns = [
+        document.getElementById("adminOpenBtn"),
+        document.getElementById("adminOpenBtnMobile"),
+        document.getElementById("adminOpenBtnFooter"),
+      ].filter(Boolean);
+      adminBtns.forEach(b => b.addEventListener("click", openAdmin));
 
-      // ====== Admin open/close ======
-      [document.getElementById('adminBtn'), document.getElementById('adminBtnMobile')].filter(Boolean)
-        .forEach(b => b.addEventListener('click', openAdmin));
-      document.getElementById('adminCloseBtn')?.addEventListener('click', closeAdmin);
-      document.getElementById('adminBackdrop')?.addEventListener('click', closeAdmin);
-
-      document.getElementById('adminLogoutBtn')?.addEventListener('click', () => {
-        setAdminToken('');
-        renderAdminUI();
-      });
+      // Admin close
+      const adminCloseBtn = document.getElementById("adminCloseBtn");
+      const adminCloseX = document.getElementById("adminCloseX");
+      const adminModal = document.getElementById("adminModal");
+      if (adminCloseBtn) adminCloseBtn.addEventListener("click", closeAdmin);
+      if (adminCloseX) adminCloseX.addEventListener("click", closeAdmin);
+      if (adminModal) {
+        adminModal.addEventListener("click", (e) => {
+          if (e.target === adminModal) closeAdmin();
+        });
+      }
 
       // Admin login
-      document.getElementById('adminLoginBtn')?.addEventListener('click', async () => {
-        const pw = document.getElementById('adminPassword')?.value || '';
-        if (!pw.trim()) { alert('Sila masukkan kata laluan.'); return; }
-        try {
-          const token = await adminLogin(pw.trim());
-          setAdminToken(token);
-          renderAdminUI();
-        } catch (err) {
-          alert('Login gagal. Semak kata laluan / Netlify Function.');
-        }
-      });
+      const adminLoginBtn = document.getElementById("adminLoginBtn");
+      if (adminLoginBtn) adminLoginBtn.addEventListener("click", adminLogin);
 
-      // Save availability
-      document.getElementById('adminSaveBtn')?.addEventListener('click', async () => {
-        const token = getAdminToken();
-        if (!token) { alert('Sila log masuk dahulu.'); return; }
-
-        const current = window.__cremaAvail || loadAvailabilityFallback();
-        document.querySelectorAll('.admin-toggle').forEach(chk => {
-          const item = chk.getAttribute('data-item');
-          if (!item) return;
-          current[item] = chk.checked; // true=available, false=sold out
+      // Enter to login
+      const adminPassword = document.getElementById("adminPassword");
+      if (adminPassword) {
+        adminPassword.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") adminLogin();
         });
+      }
 
-        // optimistic apply
-        applyAvailabilityToUI(current);
-        saveAvailabilityFallback(current);
+      // Admin refresh
+      const adminRefreshBtn = document.getElementById("adminRefreshBtn");
+      if (adminRefreshBtn) {
+        adminRefreshBtn.addEventListener("click", async () => {
+          const r = await loadAvailabilityRemote();
+          if (r) {
+            availability = r;
+            renderAdminList();
+            renderFlavourCards();
+          }
+        });
+      }
 
-        try {
-          await saveAvailabilityRemote(current, token);
-          alert('Berjaya simpan (GLOBAL).');
-        } catch (err) {
-          alert('Simpan GLOBAL gagal. Pastikan Netlify Function tersedia.');
-        }
-        renderAdminUI();
-      });
+      // Admin save
+      const adminSaveBtn = document.getElementById("adminSaveBtn");
+      if (adminSaveBtn) adminSaveBtn.addEventListener("click", adminSaveAvailability);
 
-      // Reset all available
-      document.getElementById('adminResetBtn')?.addEventListener('click', () => {
-        const a = getDefaultAvailability();
-        applyAvailabilityToUI(a);
-        saveAvailabilityFallback(a);
-        renderAdminUI();
-      });
-
-      // Export/Import
-      document.getElementById('adminExportBtn')?.addEventListener('click', () => {
-        const box = document.getElementById('adminJsonBox');
-        if (!box) return;
-        const a = window.__cremaAvail || loadAvailabilityFallback();
-        box.value = JSON.stringify(a, null, 2);
-        box.focus();
-        box.select();
-      });
-
-      document.getElementById('adminImportBtn')?.addEventListener('click', () => {
-        const box = document.getElementById('adminJsonBox');
-        if (!box) return;
-        try {
-          const parsed = JSON.parse(box.value || '{}');
-          const a = { ...getDefaultAvailability(), ...parsed };
-          applyAvailabilityToUI(a);
-          saveAvailabilityFallback(a);
-          alert('Import berjaya (local). Untuk GLOBAL, tekan Simpan.');
-          renderAdminUI();
-        } catch (e) {
-          alert('JSON tidak sah.');
-        }
-      });
-
-      // Initial render cart counts
+      // initial counts
       renderCartItems();
+      updateCountsUI();
+
+      // ESC to close modals + focus trap
+      document.addEventListener("keydown", (e) => {
+        // trap
+        handleTrap(e, "cartModal", "cartPanel");
+        handleTrap(e, "adminModal", "adminPanel");
+
+        if (e.key === "Escape") {
+          const cartModal = document.getElementById("cartModal");
+          const adminModal = document.getElementById("adminModal");
+          if (adminModal && !adminModal.classList.contains("modal-hidden")) closeAdmin();
+          else if (cartModal && !cartModal.classList.contains("modal-hidden")) closeCart();
+        }
+      });
     });
   </script>
 </body>
