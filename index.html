@@ -35,7 +35,6 @@
       opacity: 1;
     }
 
-    /* Focus ring nicer */
     :focus-visible { outline: 2px solid rgba(59,130,246,.9); outline-offset: 2px; border-radius: 10px; }
 
     /* Sold out badge */
@@ -56,9 +55,38 @@
       filter: grayscale(.15);
     }
 
-    /* Stepper button width alignment */
-    .qty-stepper button { width: 38px; height: 36px; }
-    .qty-stepper span { min-width: 34px; display: inline-flex; justify-content: center; }
+    /* ===== Stepper UI (match screenshot style) ===== */
+    .stepper-wrap{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .qty-stepper{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      border:1px solid rgba(0,0,0,.15);
+      border-radius:999px;
+      padding:6px 10px;
+      background:#fff;
+    }
+    .qty-stepper button{
+      width:36px;
+      height:34px;
+      border-radius:999px;
+      border:1px solid rgba(0,0,0,.12);
+      background:#fff;
+      font-weight:900;
+      line-height:1;
+    }
+    .qty-stepper button:hover{ background: rgba(0,0,0,.04); }
+    .qty-stepper .qty-value{
+      min-width: 30px;
+      text-align:center;
+      font-weight:900;
+      font-size:14px;
+    }
 
     /* Sticky footer in modal (always reachable) */
     .modal-shell {
@@ -191,9 +219,7 @@
         <p class="mt-3 text-base opacity-80">
           Harga setiap jenis: <strong>RM1.00 sebatang</strong>. Boleh campur perisa dalam satu order.
         </p>
-        <p class="mt-1 text-xs opacity-70">
-          Pilih kuantiti, klik <strong>Tambah ke Troli</strong>.
-        </p>
+        <p class="mt-1 text-xs opacity-70">Pilih kuantiti, klik <strong>Tambah ke Troli</strong>.</p>
       </div>
 
       <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-6" id="flavourGrid">
@@ -442,10 +468,8 @@
 
   <!-- MODAL TROLI -->
   <div id="cartModal" class="fixed inset-0 z-[60] modal-hidden" aria-hidden="true">
-    <!-- backdrop -->
     <div class="absolute inset-0 bg-black/40"></div>
 
-    <!-- panel -->
     <div class="relative max-w-3xl mx-auto mt-6 md:mt-16 px-3">
       <div id="cartPanel" class="bg-white rounded-3xl shadow-xl border overflow-hidden cart-panel modal-shell" role="dialog" aria-modal="true" aria-labelledby="cartTitle">
         <div class="flex items-center justify-between px-6 py-4 border-b">
@@ -455,18 +479,15 @@
           </h3>
 
           <div class="flex items-center gap-2">
-            <!-- X close -->
             <button id="cartCloseX" class="h-9 w-9 grid place-items-center rounded-full border hover:bg-gray-50" aria-label="Tutup Troli">
               <i class="fa-solid fa-xmark"></i>
             </button>
-            <!-- existing Tutup -->
             <button id="cartCloseBtn" class="text-sm px-3 py-1 rounded-full border hover:bg-gray-50">
               Tutup
             </button>
           </div>
         </div>
 
-        <!-- Scroll body -->
         <div class="modal-body-scroll">
           <div id="cartEmptyState" class="px-6 py-6 text-center text-sm opacity-70">
             Troli masih kosong. Tambah perisa atau pakej dari menu <strong>Perisa Popular</strong> atau <strong>Harga</strong>.
@@ -486,7 +507,6 @@
             </table>
           </div>
 
-          <!-- Form -->
           <div class="px-6 pb-6">
             <div class="rounded-2xl border p-4">
               <h4 class="font-extrabold text-sm mb-3 flex items-center gap-2">
@@ -533,7 +553,6 @@
           </div>
         </div>
 
-        <!-- Sticky footer actions -->
         <div class="border-t px-6 py-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between bg-gray-50">
           <div class="text-sm">
             <div>Jumlah batang: <span id="cartTotalQty" class="font-semibold">0</span></div>
@@ -635,7 +654,7 @@
     const AVAIL_REFRESH_MS = 30000;
 
     // Auto buka troli bila tambah item
-    const AUTO_OPEN_CART_MODE = "always"; // requested
+    const AUTO_OPEN_CART_MODE = "always";
 
     const msgGeneral = 'Hai, saya nak tempah CREMA aiskrim Malaysia.';
     const msg15 = 'Hai, saya berminat 15 batang (RM15.00).';
@@ -744,12 +763,10 @@
         const res = await fetch(AVAIL_API, { cache: "no-store" });
         const data = await res.json();
         if (data && data.ok && typeof data.availability === "object") {
-          // Normalize keys: any missing flavours -> default true
           const out = {};
           FLAVOURS.forEach(f => {
             out[f.name] = (data.availability[f.name] !== undefined) ? !!data.availability[f.name] : true;
           });
-          // Save fallback locally for offline
           localStorage.setItem("cremaAvailabilityFallback", JSON.stringify(out));
           return out;
         }
@@ -766,10 +783,13 @@
       return out;
     }
 
+    function cssEscape(str) {
+      return String(str).replace(/"/g, '&quot;');
+    }
+
     function applyAvailabilityToUI() {
-      // Update cards states
       FLAVOURS.forEach(f => {
-        const isAvail = availability[f.name] !== false; // default true
+        const isAvail = availability[f.name] !== false;
         const card = document.querySelector(`[data-flavour-card="${cssEscape(f.name)}"]`);
         if (!card) return;
 
@@ -794,13 +814,8 @@
       });
     }
 
-    function cssEscape(str) {
-      // minimal escape for attribute selector usage
-      return String(str).replace(/"/g, '&quot;');
-    }
-
     // =========================
-    // Render Flavours
+    // Render Flavours (UPDATED UI)
     // =========================
     function renderFlavourCards() {
       const grid = document.getElementById("flavourGrid");
@@ -814,6 +829,8 @@
         card.className = `relative rounded-3xl border overflow-hidden hover:shadow-md transition bg-white ${isAvail ? "" : "card-dim"}`;
         card.setAttribute("data-flavour-card", f.name);
 
+        const qty = selectionQty[f.name] || 1;
+
         card.innerHTML = `
           <div class="soldout-badge ${isAvail ? "hidden" : ""}">SOLD OUT</div>
 
@@ -821,30 +838,39 @@
             <img src="${f.img}" alt="${f.name}" class="w-full h-full object-contain"/>
           </div>
 
-          <div class="p-4 flex flex-col h-full">
+          <div class="p-4 flex flex-col">
             <div class="flex items-center justify-between gap-2">
               <h3 class="font-bold text-lg">${f.name}</h3>
               <span class="inline-flex items-center rounded-full border px-2 py-1 text-xs font-medium">Halal</span>
             </div>
-            <p class="mt-1 text-sm font-semibold text-emerald-700">RM1.00 / batang</p>
-            <p class="mt-1 text-sm opacity-80 flex-1">${f.desc}</p>
 
-            <!-- Qty selector + Add -->
-            <div class="mt-3 flex items-center justify-between gap-2">
-              <div class="qty-stepper inline-flex items-center gap-1 border rounded-2xl px-2 py-1">
-                <button class="rounded-xl border bg-white hover:bg-gray-50"
-                  data-sel-minus="${f.name}" aria-label="Kurang kuantiti ${f.name}">-</button>
-                <span class="text-sm font-extrabold" data-sel-value="${f.name}">${selectionQty[f.name] || 1}</span>
-                <button class="rounded-xl border bg-white hover:bg-gray-50"
-                  data-sel-plus="${f.name}" aria-label="Tambah kuantiti ${f.name}">+</button>
+            <p class="mt-1 text-sm font-semibold text-emerald-700">RM1.00 / batang</p>
+            <p class="mt-1 text-sm opacity-80 min-h-[44px]">${f.desc}</p>
+
+            <!-- UI like screenshot -->
+            <div class="mt-3 rounded-2xl border p-3">
+              <div class="stepper-wrap">
+                <span class="text-xs font-semibold opacity-70">Kuantiti</span>
+
+                <div class="qty-stepper">
+                  <button type="button"
+                    data-sel-minus="${f.name}"
+                    aria-label="Kurangkan kuantiti ${f.name}">-</button>
+
+                  <span class="qty-value" data-sel-value="${f.name}">${qty}</span>
+
+                  <button type="button"
+                    data-sel-plus="${f.name}"
+                    aria-label="Tambah kuantiti ${f.name}">+</button>
+                </div>
               </div>
 
-              <button
-                class="rounded-2xl px-4 py-2 text-sm font-extrabold border hover:shadow bg-amber-400 border-amber-500"
+              <button type="button"
+                class="mt-3 w-full rounded-2xl px-4 py-2 text-sm font-extrabold bg-gray-900 text-white hover:opacity-90"
                 data-add-flavour="${f.name}"
                 ${isAvail ? "" : "disabled"}
               >
-                Tambah
+                Tambah ke Troli
               </button>
             </div>
           </div>
@@ -884,9 +910,16 @@
         // add
         if (t && t.getAttribute && t.getAttribute("data-add-flavour")) {
           const name = t.getAttribute("data-add-flavour");
-          if (availability[name] === false) return; // sold out
+          if (availability[name] === false) return;
+
           const qty = selectionQty[name] || 1;
           addToCart(name, 1, qty);
+
+          // (optional) reset qty to 1 after add – kalau tak nak reset, buang 2 baris ni
+          selectionQty[name] = 1;
+          const valEl = document.querySelector(`[data-sel-value="${cssEscape(name)}"]`);
+          if (valEl) valEl.textContent = "1";
+
           if (AUTO_OPEN_CART_MODE === "always") {
             openCart({ focusSend: true });
           }
@@ -984,7 +1017,6 @@
     // =========================
     function buildWhatsAppOrderMessage() {
       const { totalSticks, totalPrice } = getCartSummary();
-
       if (totalSticks === 0) return msgGeneral;
 
       const name = (document.getElementById("orderName")?.value || "").trim();
@@ -1035,7 +1067,7 @@
     }
 
     // =========================
-    // Modal: open/close + focus trap + ESC
+    // Modal: open/close + ESC + focus trap
     // =========================
     let lastFocusedEl = null;
     function getFocusableElements(container) {
@@ -1056,22 +1088,16 @@
       modal.classList.add('modal-open');
       modal.setAttribute("aria-hidden", "false");
 
-      // animate
-      requestAnimationFrame(() => {
-        panel.classList.add("show");
-      });
+      requestAnimationFrame(() => panel.classList.add("show"));
 
       renderCartItems();
       loadPersistedName();
 
-      // focus target
       setTimeout(() => {
         if (focusSend) {
-          const btn = document.getElementById("sendOrderBtn");
-          if (btn) btn.focus();
+          document.getElementById("sendOrderBtn")?.focus();
         } else {
-          const btn = document.getElementById("cartCloseX");
-          if (btn) btn.focus();
+          document.getElementById("cartCloseX")?.focus();
         }
       }, 60);
 
@@ -1111,14 +1137,11 @@
       setTimeout(() => {
         const token = getAdminToken();
         if (token) {
-          // already logged in
           showAdminControls(true);
           renderAdminList();
-          const saveBtn = document.getElementById("adminSaveBtn");
-          if (saveBtn) saveBtn.focus();
+          document.getElementById("adminSaveBtn")?.focus();
         } else {
-          const pw = document.getElementById("adminPassword");
-          if (pw) pw.focus();
+          document.getElementById("adminPassword")?.focus();
         }
       }, 60);
     }
@@ -1139,7 +1162,6 @@
       }, 180);
     }
 
-    // Focus trap (cart + admin)
     function handleTrap(e, modalId, panelId) {
       if (e.key !== "Tab") return;
       const modal = document.getElementById(modalId);
@@ -1210,8 +1232,7 @@
 
       const pw = (document.getElementById("adminPassword")?.value || "").trim();
       if (!pw) {
-        if (msg) msg.textContent = "Sila masukkan password.";
-        if (msg) msg.className = "text-sm mt-2 text-red-600";
+        if (msg) { msg.textContent = "Sila masukkan password."; msg.className = "text-sm mt-2 text-red-600"; }
         return;
       }
 
@@ -1224,23 +1245,14 @@
         const data = await res.json();
         if (data && data.ok && data.token) {
           setAdminToken(data.token);
-          if (msg) {
-            msg.textContent = "Login berjaya.";
-            msg.className = "text-sm mt-2 text-emerald-700";
-          }
+          if (msg) { msg.textContent = "Login berjaya."; msg.className = "text-sm mt-2 text-emerald-700"; }
           showAdminControls(true);
           renderAdminList();
         } else {
-          if (msg) {
-            msg.textContent = "Password salah / gagal login.";
-            msg.className = "text-sm mt-2 text-red-600";
-          }
+          if (msg) { msg.textContent = "Password salah / gagal login."; msg.className = "text-sm mt-2 text-red-600"; }
         }
       } catch {
-        if (msg) {
-          msg.textContent = "Gagal connect. Cuba lagi.";
-          msg.className = "text-sm mt-2 text-red-600";
-        }
+        if (msg) { msg.textContent = "Gagal connect. Cuba lagi."; msg.className = "text-sm mt-2 text-red-600"; }
       }
     }
 
@@ -1250,15 +1262,11 @@
 
       const token = getAdminToken();
       if (!token) {
-        if (msg) {
-          msg.textContent = "Token admin tiada. Sila login semula.";
-          msg.className = "text-sm mt-3 text-red-600";
-        }
+        if (msg) { msg.textContent = "Token admin tiada. Sila login semula."; msg.className = "text-sm mt-3 text-red-600"; }
         showAdminControls(false);
         return;
       }
 
-      // build availability from toggles
       const next = {};
       FLAVOURS.forEach(f => {
         const cb = document.querySelector(`[data-admin-toggle="${cssEscape(f.name)}"]`);
@@ -1277,23 +1285,13 @@
         const data = await res.json();
         if (data && data.ok) {
           availability = next;
-          applyAvailabilityToUI();
-          renderFlavourCards(); // refresh labels + disabled
-          if (msg) {
-            msg.textContent = "Disimpan. Sold Out/Available kini GLOBAL untuk semua pelawat.";
-            msg.className = "text-sm mt-3 text-emerald-700";
-          }
+          renderFlavourCards();
+          if (msg) { msg.textContent = "Disimpan. Sold Out/Available kini GLOBAL untuk semua pelawat."; msg.className = "text-sm mt-3 text-emerald-700"; }
         } else {
-          if (msg) {
-            msg.textContent = "Gagal simpan. Cuba login semula.";
-            msg.className = "text-sm mt-3 text-red-600";
-          }
+          if (msg) { msg.textContent = "Gagal simpan. Cuba login semula."; msg.className = "text-sm mt-3 text-red-600"; }
         }
       } catch {
-        if (msg) {
-          msg.textContent = "Gagal simpan (network).";
-          msg.className = "text-sm mt-3 text-red-600";
-        }
+        if (msg) { msg.textContent = "Gagal simpan (network)."; msg.className = "text-sm mt-3 text-red-600"; }
       }
     }
 
@@ -1330,7 +1328,7 @@
         });
       }
 
-      // init
+      // init cart base
       initCartBase();
 
       // load availability remote then render
@@ -1345,123 +1343,82 @@
         const r = await loadAvailabilityRemote();
         if (r) {
           availability = r;
-          applyAvailabilityToUI();
           renderFlavourCards();
         }
       }, AVAIL_REFRESH_MS);
 
       // Cart open buttons
-      const cartBtn = document.getElementById('cartBtn');
-      const cartBtnMobile = document.getElementById('cartBtnMobile');
-      const cartBtnCTA = document.getElementById('cartBtnCTA');
-      if (cartBtn) cartBtn.addEventListener('click', () => openCart({ focusSend: false }));
-      if (cartBtnMobile) cartBtnMobile.addEventListener('click', () => openCart({ focusSend: false }));
-      if (cartBtnCTA) cartBtnCTA.addEventListener('click', () => openCart({ focusSend: false }));
+      document.getElementById('cartBtn')?.addEventListener('click', () => openCart({ focusSend: false }));
+      document.getElementById('cartBtnMobile')?.addEventListener('click', () => openCart({ focusSend: false }));
+      document.getElementById('cartBtnCTA')?.addEventListener('click', () => openCart({ focusSend: false }));
 
-      // Semak pesanan (after perisa)
-      const reviewBtn = document.getElementById("reviewOrderBtn");
-      if (reviewBtn) {
-        reviewBtn.addEventListener("click", () => {
-          openCart({ focusSend: true });
-        });
-      }
+      // Semak pesanan
+      document.getElementById("reviewOrderBtn")?.addEventListener("click", () => openCart({ focusSend: true }));
 
       // Close cart
-      const cartCloseBtn = document.getElementById('cartCloseBtn');
-      const cartCloseX = document.getElementById('cartCloseX');
-      const cartModal = document.getElementById('cartModal');
-      if (cartCloseBtn) cartCloseBtn.addEventListener('click', closeCart);
-      if (cartCloseX) cartCloseX.addEventListener('click', closeCart);
+      document.getElementById('cartCloseBtn')?.addEventListener('click', closeCart);
+      document.getElementById('cartCloseX')?.addEventListener('click', closeCart);
 
-      // click backdrop closes
-      if (cartModal) {
-        cartModal.addEventListener('click', (e) => {
-          // only backdrop (not panel)
-          if (e.target === cartModal) closeCart();
-        });
-      }
+      // Cart items events
+      document.getElementById('cartItems')?.addEventListener('click', (e) => {
+        const target = e.target;
 
-      // Cart items events (delegation)
-      const cartItems = document.getElementById('cartItems');
-      if (cartItems) {
-        cartItems.addEventListener('click', (e) => {
-          const target = e.target;
+        if (target.classList && target.classList.contains('qty-btn')) {
+          const name = target.getAttribute('data-name');
+          const action = target.getAttribute('data-action');
+          const item = cart[name];
+          if (!item) return;
 
-          // +/- qty
-          if (target.classList && target.classList.contains('qty-btn')) {
-            const name = target.getAttribute('data-name');
-            const action = target.getAttribute('data-action');
-            const item = cart[name];
-            if (!item) return;
+          if (action === 'plus') item.units += 1;
+          else if (action === 'minus') {
+            item.units = Math.max(0, item.units - 1);
+            const isFlavour = FLAVOURS.some(f => f.name === name);
+            if (item.units === 0 && !isFlavour) delete cart[name];
+          }
+          renderCartItems();
+        }
 
-            if (action === 'plus') {
-              item.units += 1;
-            } else if (action === 'minus') {
-              item.units = Math.max(0, item.units - 1);
-              // remove non-flavour when 0
-              const isFlavour = FLAVOURS.some(f => f.name === name);
-              if (item.units === 0 && !isFlavour) delete cart[name];
-            }
+        if (target.classList && target.classList.contains('remove-item-btn')) {
+          const name = target.getAttribute('data-name');
+          const isFlavour = FLAVOURS.some(f => f.name === name);
+          if (name && cart[name] && !isFlavour) {
+            delete cart[name];
             renderCartItems();
           }
+        }
+      });
 
-          // remove non-flavour
-          if (target.classList && target.classList.contains('remove-item-btn')) {
-            const name = target.getAttribute('data-name');
-            const isFlavour = FLAVOURS.some(f => f.name === name);
-            if (name && cart[name] && !isFlavour) {
-              delete cart[name];
-              renderCartItems();
-            }
-          }
-        });
-      }
+      // Clear cart
+      document.getElementById('cartClearBtn')?.addEventListener('click', () => {
+        if (confirm('Anda pasti mahu kosongkan troli?')) clearCart();
+      });
 
-      // Clear cart (confirm only here)
-      const cartClearBtn = document.getElementById('cartClearBtn');
-      if (cartClearBtn) {
-        cartClearBtn.addEventListener('click', () => {
-          if (confirm('Anda pasti mahu kosongkan troli?')) {
-            clearCart();
-          }
-        });
-      }
-
-      // Persist name on input
-      const orderName = document.getElementById("orderName");
-      if (orderName) {
-        orderName.addEventListener("input", persistName);
-      }
+      // Persist name
+      document.getElementById("orderName")?.addEventListener("input", persistName);
       loadPersistedName();
 
       // Send order
-      const sendBtn = document.getElementById("sendOrderBtn");
-      if (sendBtn) {
-        sendBtn.addEventListener("click", () => {
-          const { totalSticks } = getCartSummary();
+      document.getElementById("sendOrderBtn")?.addEventListener("click", () => {
+        const { totalSticks } = getCartSummary();
+        const nameEl = document.getElementById("orderName");
+        const nameError = document.getElementById("nameError");
+        const name = (nameEl?.value || "").trim();
 
-          // validate name
-          const nameEl = document.getElementById("orderName");
-          const nameError = document.getElementById("nameError");
-          const name = (nameEl?.value || "").trim();
+        if (!name) {
+          nameError?.classList.remove("hidden");
+          nameEl?.focus();
+          return;
+        }
+        nameError?.classList.add("hidden");
 
-          if (!name) {
-            if (nameError) nameError.classList.remove("hidden");
-            if (nameEl) nameEl.focus();
-            return;
-          }
-          if (nameError) nameError.classList.add("hidden");
+        if (totalSticks === 0) {
+          alert("Troli masih kosong. Sila tambah item dahulu.");
+          return;
+        }
 
-          if (totalSticks === 0) {
-            alert("Troli masih kosong. Sila tambah item dahulu.");
-            return;
-          }
-
-          // open WhatsApp
-          const msg = buildWhatsAppOrderMessage();
-          window.open(wa(msg), "_blank");
-        });
-      }
+        const msg = buildWhatsAppOrderMessage();
+        window.open(wa(msg), "_blank");
+      });
 
       // Packages add
       document.querySelectorAll('.add-package-to-cart').forEach(btn => {
@@ -1476,61 +1433,37 @@
       });
 
       // Admin open buttons
-      const adminBtns = [
+      [
         document.getElementById("adminOpenBtn"),
         document.getElementById("adminOpenBtnMobile"),
         document.getElementById("adminOpenBtnFooter"),
-      ].filter(Boolean);
-      adminBtns.forEach(b => b.addEventListener("click", openAdmin));
+      ].filter(Boolean).forEach(b => b.addEventListener("click", openAdmin));
 
       // Admin close
-      const adminCloseBtn = document.getElementById("adminCloseBtn");
-      const adminCloseX = document.getElementById("adminCloseX");
-      const adminModal = document.getElementById("adminModal");
-      if (adminCloseBtn) adminCloseBtn.addEventListener("click", closeAdmin);
-      if (adminCloseX) adminCloseX.addEventListener("click", closeAdmin);
-      if (adminModal) {
-        adminModal.addEventListener("click", (e) => {
-          if (e.target === adminModal) closeAdmin();
-        });
-      }
+      document.getElementById("adminCloseBtn")?.addEventListener("click", closeAdmin);
+      document.getElementById("adminCloseX")?.addEventListener("click", closeAdmin);
 
-      // Admin login
-      const adminLoginBtn = document.getElementById("adminLoginBtn");
-      if (adminLoginBtn) adminLoginBtn.addEventListener("click", adminLogin);
-
-      // Enter to login
-      const adminPassword = document.getElementById("adminPassword");
-      if (adminPassword) {
-        adminPassword.addEventListener("keydown", (e) => {
-          if (e.key === "Enter") adminLogin();
-        });
-      }
-
-      // Admin refresh
-      const adminRefreshBtn = document.getElementById("adminRefreshBtn");
-      if (adminRefreshBtn) {
-        adminRefreshBtn.addEventListener("click", async () => {
-          const r = await loadAvailabilityRemote();
-          if (r) {
-            availability = r;
-            renderAdminList();
-            renderFlavourCards();
-          }
-        });
-      }
-
-      // Admin save
-      const adminSaveBtn = document.getElementById("adminSaveBtn");
-      if (adminSaveBtn) adminSaveBtn.addEventListener("click", adminSaveAvailability);
+      // Admin login/save/refresh
+      document.getElementById("adminLoginBtn")?.addEventListener("click", adminLogin);
+      document.getElementById("adminPassword")?.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") adminLogin();
+      });
+      document.getElementById("adminRefreshBtn")?.addEventListener("click", async () => {
+        const r = await loadAvailabilityRemote();
+        if (r) {
+          availability = r;
+          renderAdminList();
+          renderFlavourCards();
+        }
+      });
+      document.getElementById("adminSaveBtn")?.addEventListener("click", adminSaveAvailability);
 
       // initial counts
       renderCartItems();
       updateCountsUI();
 
-      // ESC to close modals + focus trap
+      // ESC + focus trap
       document.addEventListener("keydown", (e) => {
-        // trap
         handleTrap(e, "cartModal", "cartPanel");
         handleTrap(e, "adminModal", "adminPanel");
 
