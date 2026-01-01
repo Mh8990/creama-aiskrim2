@@ -22,54 +22,13 @@
       Noto Sans, Ubuntu, Cantarell, Helvetica Neue, Arial, "Apple Color Emoji", "Segoe UI Emoji";
     }
 
-    /* ===== Modal animation ===== */
-    .modal-hidden { display: none; }
-    .modal-open { display: block; }
-    .cart-panel {
-      transform: translateY(-12px);
-      opacity: 0;
-      transition: transform 200ms ease, opacity 200ms ease;
-    }
-    .cart-panel.show {
-      transform: translateY(0);
-      opacity: 1;
-    }
+    /* Cart panel animation */
+    .cart-panel-enter { opacity: 1 !important; transform: translateY(0) !important; }
+    .cart-panel-leave { opacity: 0 !important; transform: translateY(-12px) !important; }
 
-    /* Focus ring nicer */
-    :focus-visible { outline: 2px solid rgba(59,130,246,.9); outline-offset: 2px; border-radius: 10px; }
-
-    /* Sold out badge */
-    .soldout-badge {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      background: rgba(0,0,0,.75);
-      color: white;
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: .04em;
-    }
-    .card-dim {
-      opacity: .55;
-      filter: grayscale(.15);
-    }
-
-    /* Stepper button width alignment */
-    .qty-stepper button { width: 38px; height: 36px; }
-    .qty-stepper span { min-width: 34px; display: inline-flex; justify-content: center; }
-
-    /* Sticky footer in modal (always reachable) */
-    .modal-shell {
-      max-height: min(92vh, 860px);
-      display: flex;
-      flex-direction: column;
-    }
-    .modal-body-scroll {
-      overflow: auto;
-      -webkit-overflow-scrolling: touch;
-    }
+    /* Admin modal */
+    .admin-panel-enter { opacity: 1 !important; transform: translateY(0) !important; }
+    .admin-panel-leave { opacity: 0 !important; transform: translateY(-12px) !important; }
   </style>
 </head>
 
@@ -94,29 +53,34 @@
         <a href="#faq" class="hover:opacity-70">FAQ</a>
         <a href="#lokasi" class="hover:opacity-70">Lokasi</a>
 
-        <a id="waTop" href="#" class="rounded-2xl px-4 py-2 font-semibold hover:shadow bg-green-600 text-white border border-green-700">
+        <button id="checkCartBtn"
+                class="rounded-2xl px-4 py-2 border border-orange-400 text-orange-600 font-semibold hover:bg-orange-50 transition">
+          Semak Troli Anda
+        </button>
+
+        <a id="waTop" href="#"
+           class="rounded-2xl px-4 py-2 bg-green-600 text-white font-semibold hover:bg-green-700 shadow">
           WhatsApp
         </a>
 
-        <!-- Butang Troli Desktop -->
-        <button id="cartBtn" class="relative rounded-2xl px-4 py-2 font-semibold hover:shadow flex items-center gap-2 bg-amber-400 border border-amber-500">
+        <button id="cartBtn"
+                class="relative rounded-2xl px-4 py-2 bg-orange-500 text-white font-bold hover:bg-orange-600 shadow flex items-center gap-2">
           <i class="fa-solid fa-cart-shopping"></i>
           <span>Troli</span>
-          <span id="cartCount" class="ml-1 inline-flex items-center justify-center rounded-full text-xs px-2 py-0.5 bg-gray-900 text-white">0</span>
-        </button>
-
-        <!-- Admin (small) -->
-        <button id="adminOpenBtn" class="rounded-2xl px-3 py-2 border text-xs font-semibold hover:shadow">
-          Admin
+          <span id="cartCount"
+                class="ml-1 inline-flex items-center justify-center rounded-full text-xs px-2 py-0.5 bg-gray-900 text-white">0</span>
         </button>
       </nav>
 
-      <!-- Right side mobile: cart + menu -->
+      <!-- Right side mobile -->
       <div class="flex md:hidden items-center gap-2">
-        <button id="cartBtnMobile" class="relative rounded-xl px-3 py-2 flex items-center gap-2 bg-amber-400 border border-amber-500">
+        <button id="cartBtnMobile"
+                class="relative rounded-xl bg-orange-500 text-white px-3 py-2 flex items-center gap-2 shadow hover:bg-orange-600">
           <i class="fa-solid fa-cart-shopping"></i>
-          <span id="cartCountMobile" class="inline-flex items-center justify-center rounded-full text-xs px-2 py-0.5 bg-gray-900 text-white">0</span>
+          <span id="cartCountMobile"
+                class="inline-flex items-center justify-center rounded-full text-xs px-2 py-0.5 bg-gray-900 text-white">0</span>
         </button>
+
         <button id="menuBtn" class="md:hidden rounded-xl border px-3 py-2">Menu</button>
       </div>
     </div>
@@ -129,14 +93,14 @@
         <a href="#testimoni" class="py-2 menu-link">Testimoni</a>
         <a href="#faq" class="py-2 menu-link">FAQ</a>
         <a href="#lokasi" class="py-2 menu-link">Lokasi</a>
-
-        <a id="waTopMobile" href="#" class="rounded-xl px-4 py-2 text-center font-semibold bg-green-600 text-white border border-green-700">
+        <button id="checkCartBtnMobile"
+                class="mt-2 rounded-2xl px-4 py-2 border border-orange-400 text-orange-600 font-semibold hover:bg-orange-50 transition">
+          Semak Troli Anda
+        </button>
+        <a id="waTopMobile" href="#"
+           class="rounded-2xl px-4 py-2 bg-green-600 text-white font-semibold hover:bg-green-700 shadow text-center">
           WhatsApp
         </a>
-
-        <button id="adminOpenBtnMobile" class="rounded-xl border px-4 py-2 text-center font-semibold">
-          Admin
-        </button>
       </div>
     </div>
   </header>
@@ -145,6 +109,7 @@
     <!-- HERO -->
     <section id="hero" class="relative overflow-hidden">
       <div class="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-pink-100 via-white to-white"></div>
+
       <div class="mx-auto max-w-6xl px-4 py-20 grid md:grid-cols-2 gap-10 items-center">
         <div>
           <span class="inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium">
@@ -157,22 +122,25 @@
             Nikmati lebih 10+ perisa aiskrim Malaysia istimewa — sesuai untuk majlis, katering, dan jualan runcit.
             Boleh hantaran terus ke lokasi anda.
           </p>
+
           <div class="mt-6 flex flex-wrap gap-3">
-            <a id="waCTA1" href="#" class="rounded-2xl px-5 py-3 font-semibold hover:shadow bg-green-600 text-white border border-green-700">
+            <a id="waCTA1" href="#" class="rounded-2xl px-5 py-3 border font-semibold hover:shadow">
               WhatsApp Sekarang
             </a>
             <a href="#perisa" class="rounded-2xl px-5 py-3 border font-semibold hover:shadow">
               Lihat Perisa
             </a>
           </div>
+
           <ul class="mt-6 grid sm:grid-cols-3 gap-3 text-sm">
             <li class="flex items-start gap-2"><span class="mt-1">✅</span><span>Resipi sendiri berdaftar</span></li>
             <li class="flex items-start gap-2"><span class="mt-1">✅</span><span>Penghantaran sekitar Kuantan</span></li>
             <li class="flex items-start gap-2"><span class="mt-1">✅</span><span>Diskaun borong & pakej majlis</span></li>
           </ul>
         </div>
+
         <div class="relative">
-          <div class="aspect-[4/6] rounded-3xl border shadow-sm overflow-hidden">
+          <div class="relative aspect-[4/6] rounded-3xl border shadow-sm overflow-hidden">
             <img src="front-page.jpg" alt="Aiskrim Malaysia pelbagai perisa" class="h-full w-full object-cover"/>
           </div>
           <div class="absolute -bottom-6 -right-6 bg-white rounded-3xl border shadow p-4">
@@ -185,37 +153,447 @@
 
     <!-- PERISA -->
     <section id="perisa" class="mx-auto max-w-6xl px-4 py-20">
-      <div class="mx-auto max-w-3xl text-center mb-10">
+      <div class="mx-auto max-w-3xl text-center mb-12">
         <p class="text-sm uppercase tracking-widest opacity-70">Pilihan</p>
         <h2 class="mt-1 text-3xl md:text-4xl font-extrabold">Perisa Popular (15 Jenis)</h2>
         <p class="mt-3 text-base opacity-80">
           Harga setiap jenis: <strong>RM1.00 sebatang</strong>. Boleh campur perisa dalam satu order.
         </p>
-        <p class="mt-1 text-xs opacity-70">
-          Pilih kuantiti, klik <strong>Tambah ke Troli</strong>.
-        </p>
+        <p class="mt-1 text-xs opacity-70">Pilih kuantiti, kemudian klik <strong>Tambah ke Troli</strong>.</p>
+        <div id="availabilityStatus" class="mt-3 text-xs opacity-70">Semak stok...</div>
       </div>
 
-      <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-6" id="flavourGrid">
-        <!-- Cards generated by JS for consistent layout -->
+      <!-- Grid cards -->
+      <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-6">
+
+        <!-- CARD TEMPLATE (repeat 15) -->
+        <!-- Each card: data-flavour="NAME", stepper + add button -->
+        <!-- SOLD OUT badge will be injected by JS -->
+
+        <!-- 1 -->
+        <div class="rounded-3xl border overflow-hidden hover:shadow-md transition flex flex-col" data-flavour="Double Coklat">
+          <div class="aspect-[4/5] overflow-hidden relative">
+            <img src="double-coklat.png" alt="Double Coklat" class="w-full h-full object-contain"/>
+            <div class="soldout-badge hidden absolute top-3 left-3 rounded-full px-3 py-1 text-xs font-black bg-red-600 text-white shadow">SOLD OUT</div>
+          </div>
+          <div class="p-4 flex flex-col flex-1">
+            <div class="flex items-center justify-between gap-2">
+              <h3 class="font-bold text-lg">Double Coklat</h3>
+              <span class="inline-flex items-center rounded-full border px-2 py-1 text-xs font-medium">Halal</span>
+            </div>
+            <p class="mt-1 text-sm font-semibold text-emerald-700">RM1.00 / batang</p>
+            <p class="mt-1 text-sm opacity-80 min-h-[3rem]">Lemak berkrim, klasik sepanjang zaman.</p>
+
+            <div class="mt-auto flex items-center justify-between gap-2 pt-3">
+              <span class="text-xs opacity-70">Kuantiti</span>
+              <div class="inline-flex items-center gap-1 border rounded-full px-2 py-1">
+                <button type="button" class="px-2 text-sm flavour-qty-btn" data-action="minus">-</button>
+                <input type="number" min="1" value="1" class="w-14 text-center text-sm outline-none bg-transparent flavour-qty-input"/>
+                <button type="button" class="px-2 text-sm flavour-qty-btn" data-action="plus">+</button>
+              </div>
+            </div>
+
+            <button type="button"
+                    class="mt-2 w-full rounded-2xl px-3 py-2 text-sm font-semibold bg-gray-900 text-white hover:opacity-90 add-to-cart"
+                    data-name="Double Coklat">
+              Tambah ke Troli
+            </button>
+          </div>
+        </div>
+
+        <!-- 2 -->
+        <div class="rounded-3xl border overflow-hidden hover:shadow-md transition flex flex-col" data-flavour="Coklat Cheese">
+          <div class="aspect-[4/5] overflow-hidden relative">
+            <img src="coklat-cheese.png" alt="Coklat Cheese" class="w-full h-full object-contain"/>
+            <div class="soldout-badge hidden absolute top-3 left-3 rounded-full px-3 py-1 text-xs font-black bg-red-600 text-white shadow">SOLD OUT</div>
+          </div>
+          <div class="p-4 flex flex-col flex-1">
+            <div class="flex items-center justify-between gap-2">
+              <h3 class="font-bold text-lg">Coklat Cheese</h3>
+              <span class="inline-flex items-center rounded-full border px-2 py-1 text-xs font-medium">Halal</span>
+            </div>
+            <p class="mt-1 text-sm font-semibold text-emerald-700">RM1.00 / batang</p>
+            <p class="mt-1 text-sm opacity-80 min-h-[3rem]">Koko pekat dengan tekstur lembut.</p>
+            <div class="mt-auto flex items-center justify-between gap-2 pt-3">
+              <span class="text-xs opacity-70">Kuantiti</span>
+              <div class="inline-flex items-center gap-1 border rounded-full px-2 py-1">
+                <button type="button" class="px-2 text-sm flavour-qty-btn" data-action="minus">-</button>
+                <input type="number" min="1" value="1" class="w-14 text-center text-sm outline-none bg-transparent flavour-qty-input"/>
+                <button type="button" class="px-2 text-sm flavour-qty-btn" data-action="plus">+</button>
+              </div>
+            </div>
+            <button type="button" class="mt-2 w-full rounded-2xl px-3 py-2 text-sm font-semibold bg-gray-900 text-white hover:opacity-90 add-to-cart" data-name="Coklat Cheese">
+              Tambah ke Troli
+            </button>
+          </div>
+        </div>
+
+        <!-- 3 -->
+        <div class="rounded-3xl border overflow-hidden hover:shadow-md transition flex flex-col" data-flavour="Choki-Choki">
+          <div class="aspect-[4/5] overflow-hidden relative">
+            <img src="choki-choki.png" alt="Choki-Choki" class="w-full h-full object-contain"/>
+            <div class="soldout-badge hidden absolute top-3 left-3 rounded-full px-3 py-1 text-xs font-black bg-red-600 text-white shadow">SOLD OUT</div>
+          </div>
+          <div class="p-4 flex flex-col flex-1">
+            <div class="flex items-center justify-between gap-2">
+              <h3 class="font-bold text-lg">Choki-Choki</h3>
+              <span class="inline-flex items-center rounded-full border px-2 py-1 text-xs font-medium">Halal</span>
+            </div>
+            <p class="mt-1 text-sm font-semibold text-emerald-700">RM1.00 / batang</p>
+            <p class="mt-1 text-sm opacity-80 min-h-[3rem]">Manis coklat sebenar, menyegarkan.</p>
+            <div class="mt-auto flex items-center justify-between gap-2 pt-3">
+              <span class="text-xs opacity-70">Kuantiti</span>
+              <div class="inline-flex items-center gap-1 border rounded-full px-2 py-1">
+                <button type="button" class="px-2 text-sm flavour-qty-btn" data-action="minus">-</button>
+                <input type="number" min="1" value="1" class="w-14 text-center text-sm outline-none bg-transparent flavour-qty-input"/>
+                <button type="button" class="px-2 text-sm flavour-qty-btn" data-action="plus">+</button>
+              </div>
+            </div>
+            <button type="button" class="mt-2 w-full rounded-2xl px-3 py-2 text-sm font-semibold bg-gray-900 text-white hover:opacity-90 add-to-cart" data-name="Choki-Choki">
+              Tambah ke Troli
+            </button>
+          </div>
+        </div>
+
+        <!-- 4 -->
+        <div class="rounded-3xl border overflow-hidden hover:shadow-md transition flex flex-col" data-flavour="Jagung Original">
+          <div class="aspect-[4/5] overflow-hidden relative">
+            <img src="jagung-original.png" alt="Jagung Original" class="w-full h-full object-contain"/>
+            <div class="soldout-badge hidden absolute top-3 left-3 rounded-full px-3 py-1 text-xs font-black bg-red-600 text-white shadow">SOLD OUT</div>
+          </div>
+          <div class="p-4 flex flex-col flex-1">
+            <div class="flex items-center justify-between gap-2">
+              <h3 class="font-bold text-lg">Jagung Original</h3>
+              <span class="inline-flex items-center rounded-full border px-2 py-1 text-xs font-medium">Halal</span>
+            </div>
+            <p class="mt-1 text-sm font-semibold text-emerald-700">RM1.00 / batang</p>
+            <p class="mt-1 text-sm opacity-80 min-h-[3rem]">Harum manis, kegemaran ramai.</p>
+            <div class="mt-auto flex items-center justify-between gap-2 pt-3">
+              <span class="text-xs opacity-70">Kuantiti</span>
+              <div class="inline-flex items-center gap-1 border rounded-full px-2 py-1">
+                <button type="button" class="px-2 text-sm flavour-qty-btn" data-action="minus">-</button>
+                <input type="number" min="1" value="1" class="w-14 text-center text-sm outline-none bg-transparent flavour-qty-input"/>
+                <button type="button" class="px-2 text-sm flavour-qty-btn" data-action="plus">+</button>
+              </div>
+            </div>
+            <button type="button" class="mt-2 w-full rounded-2xl px-3 py-2 text-sm font-semibold bg-gray-900 text-white hover:opacity-90 add-to-cart" data-name="Jagung Original">
+              Tambah ke Troli
+            </button>
+          </div>
+        </div>
+
+        <!-- 5 -->
+        <div class="rounded-3xl border overflow-hidden hover:shadow-md transition flex flex-col" data-flavour="Jagung Coklat">
+          <div class="aspect-[4/5] overflow-hidden relative">
+            <img src="jagung-coklat.png" alt="Jagung Coklat" class="w-full h-full object-contain"/>
+            <div class="soldout-badge hidden absolute top-3 left-3 rounded-full px-3 py-1 text-xs font-black bg-red-600 text-white shadow">SOLD OUT</div>
+          </div>
+          <div class="p-4 flex flex-col flex-1">
+            <div class="flex items-center justify-between gap-2">
+              <h3 class="font-bold text-lg">Jagung Coklat</h3>
+              <span class="inline-flex items-center rounded-full border px-2 py-1 text-xs font-medium">Halal</span>
+            </div>
+            <p class="mt-1 text-sm font-semibold text-emerald-700">RM1.00 / batang</p>
+            <p class="mt-1 text-sm opacity-80 min-h-[3rem]">Jagung bercampur coklat, manis berlemak.</p>
+            <div class="mt-auto flex items-center justify-between gap-2 pt-3">
+              <span class="text-xs opacity-70">Kuantiti</span>
+              <div class="inline-flex items-center gap-1 border rounded-full px-2 py-1">
+                <button type="button" class="px-2 text-sm flavour-qty-btn" data-action="minus">-</button>
+                <input type="number" min="1" value="1" class="w-14 text-center text-sm outline-none bg-transparent flavour-qty-input"/>
+                <button type="button" class="px-2 text-sm flavour-qty-btn" data-action="plus">+</button>
+              </div>
+            </div>
+            <button type="button" class="mt-2 w-full rounded-2xl px-3 py-2 text-sm font-semibold bg-gray-900 text-white hover:opacity-90 add-to-cart" data-name="Jagung Coklat">
+              Tambah ke Troli
+            </button>
+          </div>
+        </div>
+
+        <!-- 6 -->
+        <div class="rounded-3xl border overflow-hidden hover:shadow-md transition flex flex-col" data-flavour="Jagung Cheese">
+          <div class="aspect-[4/5] overflow-hidden relative">
+            <img src="jagung-cheese.png" alt="Jagung Cheese" class="w-full h-full object-contain"/>
+            <div class="soldout-badge hidden absolute top-3 left-3 rounded-full px-3 py-1 text-xs font-black bg-red-600 text-white shadow">SOLD OUT</div>
+          </div>
+          <div class="p-4 flex flex-col flex-1">
+            <div class="flex items-center justify-between gap-2">
+              <h3 class="font-bold text-lg">Jagung Cheese</h3>
+              <span class="inline-flex items-center rounded-full border px-2 py-1 text-xs font-medium">Halal</span>
+            </div>
+            <p class="mt-1 text-sm font-semibold text-emerald-700">RM1.00 / batang</p>
+            <p class="mt-1 text-sm opacity-80 min-h-[3rem]">Keenakan jagung lemak berkrim.</p>
+            <div class="mt-auto flex items-center justify-between gap-2 pt-3">
+              <span class="text-xs opacity-70">Kuantiti</span>
+              <div class="inline-flex items-center gap-1 border rounded-full px-2 py-1">
+                <button type="button" class="px-2 text-sm flavour-qty-btn" data-action="minus">-</button>
+                <input type="number" min="1" value="1" class="w-14 text-center text-sm outline-none bg-transparent flavour-qty-input"/>
+                <button type="button" class="px-2 text-sm flavour-qty-btn" data-action="plus">+</button>
+              </div>
+            </div>
+            <button type="button" class="mt-2 w-full rounded-2xl px-3 py-2 text-sm font-semibold bg-gray-900 text-white hover:opacity-90 add-to-cart" data-name="Jagung Cheese">
+              Tambah ke Troli
+            </button>
+          </div>
+        </div>
+
+        <!-- 7 -->
+        <div class="rounded-3xl border overflow-hidden hover:shadow-md transition flex flex-col" data-flavour="Bandung Original">
+          <div class="aspect-[4/5] overflow-hidden relative">
+            <img src="bandung-original.png" alt="Bandung Original" class="w-full h-full object-contain"/>
+            <div class="soldout-badge hidden absolute top-3 left-3 rounded-full px-3 py-1 text-xs font-black bg-red-600 text-white shadow">SOLD OUT</div>
+          </div>
+          <div class="p-4 flex flex-col flex-1">
+            <div class="flex items-center justify-between gap-2">
+              <h3 class="font-bold text-lg">Bandung Original</h3>
+              <span class="inline-flex items-center rounded-full border px-2 py-1 text-xs font-medium">Halal</span>
+            </div>
+            <p class="mt-1 text-sm font-semibold text-emerald-700">RM1.00 / batang</p>
+            <p class="mt-1 text-sm opacity-80 min-h-[3rem]">Rasa lokal yang memikat.</p>
+            <div class="mt-auto flex items-center justify-between gap-2 pt-3">
+              <span class="text-xs opacity-70">Kuantiti</span>
+              <div class="inline-flex items-center gap-1 border rounded-full px-2 py-1">
+                <button type="button" class="px-2 text-sm flavour-qty-btn" data-action="minus">-</button>
+                <input type="number" min="1" value="1" class="w-14 text-center text-sm outline-none bg-transparent flavour-qty-input"/>
+                <button type="button" class="px-2 text-sm flavour-qty-btn" data-action="plus">+</button>
+              </div>
+            </div>
+            <button type="button" class="mt-2 w-full rounded-2xl px-3 py-2 text-sm font-semibold bg-gray-900 text-white hover:opacity-90 add-to-cart" data-name="Bandung Original">
+              Tambah ke Troli
+            </button>
+          </div>
+        </div>
+
+        <!-- 8 -->
+        <div class="rounded-3xl border overflow-hidden hover:shadow-md transition flex flex-col" data-flavour="Bandung Coklat">
+          <div class="aspect-[4/5] overflow-hidden relative">
+            <img src="bandung-coklat.png" alt="Bandung Coklat" class="w-full h-full object-contain"/>
+            <div class="soldout-badge hidden absolute top-3 left-3 rounded-full px-3 py-1 text-xs font-black bg-red-600 text-white shadow">SOLD OUT</div>
+          </div>
+          <div class="p-4 flex flex-col flex-1">
+            <div class="flex items-center justify-between gap-2">
+              <h3 class="font-bold text-lg">Bandung Coklat</h3>
+              <span class="inline-flex items-center rounded-full border px-2 py-1 text-xs font-medium">Halal</span>
+            </div>
+            <p class="mt-1 text-sm font-semibold text-emerald-700">RM1.00 / batang</p>
+            <p class="mt-1 text-sm opacity-80 min-h-[3rem]">Lemak, lembut, wangi.</p>
+            <div class="mt-auto flex items-center justify-between gap-2 pt-3">
+              <span class="text-xs opacity-70">Kuantiti</span>
+              <div class="inline-flex items-center gap-1 border rounded-full px-2 py-1">
+                <button type="button" class="px-2 text-sm flavour-qty-btn" data-action="minus">-</button>
+                <input type="number" min="1" value="1" class="w-14 text-center text-sm outline-none bg-transparent flavour-qty-input"/>
+                <button type="button" class="px-2 text-sm flavour-qty-btn" data-action="plus">+</button>
+              </div>
+            </div>
+            <button type="button" class="mt-2 w-full rounded-2xl px-3 py-2 text-sm font-semibold bg-gray-900 text-white hover:opacity-90 add-to-cart" data-name="Bandung Coklat">
+              Tambah ke Troli
+            </button>
+          </div>
+        </div>
+
+        <!-- 9 -->
+        <div class="rounded-3xl border overflow-hidden hover:shadow-md transition flex flex-col" data-flavour="Matcha Cheese">
+          <div class="aspect-[4/5] overflow-hidden relative">
+            <img src="matcha-cheese.png" alt="Matcha Cheese" class="w-full h-full object-cover"/>
+            <div class="soldout-badge hidden absolute top-3 left-3 rounded-full px-3 py-1 text-xs font-black bg-red-600 text-white shadow">SOLD OUT</div>
+          </div>
+          <div class="p-4 flex flex-col flex-1">
+            <div class="flex items-center justify-between gap-2">
+              <h3 class="font-bold text-lg">Matcha Cheese</h3>
+              <span class="inline-flex items-center rounded-full border px-2 py-1 text-xs font-medium">Halal</span>
+            </div>
+            <p class="mt-1 text-sm font-semibold text-emerald-700">RM1.00 / batang</p>
+            <p class="mt-1 text-sm opacity-80 min-h-[3rem]">Kelainan matcha dan cheese memikat rasa.</p>
+            <div class="mt-auto flex items-center justify-between gap-2 pt-3">
+              <span class="text-xs opacity-70">Kuantiti</span>
+              <div class="inline-flex items-center gap-1 border rounded-full px-2 py-1">
+                <button type="button" class="px-2 text-sm flavour-qty-btn" data-action="minus">-</button>
+                <input type="number" min="1" value="1" class="w-14 text-center text-sm outline-none bg-transparent flavour-qty-input"/>
+                <button type="button" class="px-2 text-sm flavour-qty-btn" data-action="plus">+</button>
+              </div>
+            </div>
+            <button type="button" class="mt-2 w-full rounded-2xl px-3 py-2 text-sm font-semibold bg-gray-900 text-white hover:opacity-90 add-to-cart" data-name="Matcha Cheese">
+              Tambah ke Troli
+            </button>
+          </div>
+        </div>
+
+        <!-- 10 -->
+        <div class="rounded-3xl border overflow-hidden hover:shadow-md transition flex flex-col" data-flavour="Matcha Coklat">
+          <div class="aspect-[4/5] overflow-hidden relative">
+            <img src="matcha-coklat.png" alt="Matcha Coklat" class="w-full h-full object-cover"/>
+            <div class="soldout-badge hidden absolute top-3 left-3 rounded-full px-3 py-1 text-xs font-black bg-red-600 text-white shadow">SOLD OUT</div>
+          </div>
+          <div class="p-4 flex flex-col flex-1">
+            <div class="flex items-center justify-between gap-2">
+              <h3 class="font-bold text-lg">Matcha Coklat</h3>
+              <span class="inline-flex items-center rounded-full border px-2 py-1 text-xs font-medium">Halal</span>
+            </div>
+            <p class="mt-1 text-sm font-semibold text-emerald-700">RM1.00 / batang</p>
+            <p class="mt-1 text-sm opacity-80 min-h-[3rem]">Keenakan matcha bersama coklat berkrim.</p>
+            <div class="mt-auto flex items-center justify-between gap-2 pt-3">
+              <span class="text-xs opacity-70">Kuantiti</span>
+              <div class="inline-flex items-center gap-1 border rounded-full px-2 py-1">
+                <button type="button" class="px-2 text-sm flavour-qty-btn" data-action="minus">-</button>
+                <input type="number" min="1" value="1" class="w-14 text-center text-sm outline-none bg-transparent flavour-qty-input"/>
+                <button type="button" class="px-2 text-sm flavour-qty-btn" data-action="plus">+</button>
+              </div>
+            </div>
+            <button type="button" class="mt-2 w-full rounded-2xl px-3 py-2 text-sm font-semibold bg-gray-900 text-white hover:opacity-90 add-to-cart" data-name="Matcha Coklat">
+              Tambah ke Troli
+            </button>
+          </div>
+        </div>
+
+        <!-- 11 -->
+        <div class="rounded-3xl border overflow-hidden hover:shadow-md transition flex flex-col" data-flavour="Keladi Coklat">
+          <div class="aspect-[4/5] overflow-hidden relative">
+            <img src="keladi-coklat.png" alt="Keladi Coklat" class="w-full h-full object-cover"/>
+            <div class="soldout-badge hidden absolute top-3 left-3 rounded-full px-3 py-1 text-xs font-black bg-red-600 text-white shadow">SOLD OUT</div>
+          </div>
+          <div class="p-4 flex flex-col flex-1">
+            <div class="flex items-center justify-between gap-2">
+              <h3 class="font-bold text-lg">Keladi Coklat</h3>
+              <span class="inline-flex items-center rounded-full border px-2 py-1 text-xs font-medium">Halal</span>
+            </div>
+            <p class="mt-1 text-sm font-semibold text-emerald-700">RM1.00 / batang</p>
+            <p class="mt-1 text-sm opacity-80 min-h-[3rem]">Rasa klasik yang memikat.</p>
+            <div class="mt-auto flex items-center justify-between gap-2 pt-3">
+              <span class="text-xs opacity-70">Kuantiti</span>
+              <div class="inline-flex items-center gap-1 border rounded-full px-2 py-1">
+                <button type="button" class="px-2 text-sm flavour-qty-btn" data-action="minus">-</button>
+                <input type="number" min="1" value="1" class="w-14 text-center text-sm outline-none bg-transparent flavour-qty-input"/>
+                <button type="button" class="px-2 text-sm flavour-qty-btn" data-action="plus">+</button>
+              </div>
+            </div>
+            <button type="button" class="mt-2 w-full rounded-2xl px-3 py-2 text-sm font-semibold bg-gray-900 text-white hover:opacity-90 add-to-cart" data-name="Keladi Coklat">
+              Tambah ke Troli
+            </button>
+          </div>
+        </div>
+
+        <!-- 12 -->
+        <div class="rounded-3xl border overflow-hidden hover:shadow-md transition flex flex-col" data-flavour="Keladi Cheese">
+          <div class="aspect-[4/5] overflow-hidden relative">
+            <img src="keladi-cheese.png" alt="Keladi Cheese" class="w-full h-full object-cover"/>
+            <div class="soldout-badge hidden absolute top-3 left-3 rounded-full px-3 py-1 text-xs font-black bg-red-600 text-white shadow">SOLD OUT</div>
+          </div>
+          <div class="p-4 flex flex-col flex-1">
+            <div class="flex items-center justify-between gap-2">
+              <h3 class="font-bold text-lg">Keladi Cheese</h3>
+              <span class="inline-flex items-center rounded-full border px-2 py-1 text-xs font-medium">Halal</span>
+            </div>
+            <p class="mt-1 text-sm font-semibold text-emerald-700">RM1.00 / batang</p>
+            <p class="mt-1 text-sm opacity-80 min-h-[3rem]">Gabungan keladi dan cheese gaya moden.</p>
+            <div class="mt-auto flex items-center justify-between gap-2 pt-3">
+              <span class="text-xs opacity-70">Kuantiti</span>
+              <div class="inline-flex items-center gap-1 border rounded-full px-2 py-1">
+                <button type="button" class="px-2 text-sm flavour-qty-btn" data-action="minus">-</button>
+                <input type="number" min="1" value="1" class="w-14 text-center text-sm outline-none bg-transparent flavour-qty-input"/>
+                <button type="button" class="px-2 text-sm flavour-qty-btn" data-action="plus">+</button>
+              </div>
+            </div>
+            <button type="button" class="mt-2 w-full rounded-2xl px-3 py-2 text-sm font-semibold bg-gray-900 text-white hover:opacity-90 add-to-cart" data-name="Keladi Cheese">
+              Tambah ke Troli
+            </button>
+          </div>
+        </div>
+
+        <!-- 13 -->
+        <div class="rounded-3xl border overflow-hidden hover:shadow-md transition flex flex-col" data-flavour="Tutti Fruiti">
+          <div class="aspect-[4/5] overflow-hidden relative">
+            <img src="tutti.png" alt="Tutti Fruiti" class="w-full h-full object-cover"/>
+            <div class="soldout-badge hidden absolute top-3 left-3 rounded-full px-3 py-1 text-xs font-black bg-red-600 text-white shadow">SOLD OUT</div>
+          </div>
+          <div class="p-4 flex flex-col flex-1">
+            <div class="flex items-center justify-between gap-2">
+              <h3 class="font-bold text-lg">Tutti Fruiti</h3>
+              <span class="inline-flex items-center rounded-full border px-2 py-1 text-xs font-medium">Halal</span>
+            </div>
+            <p class="mt-1 text-sm font-semibold text-emerald-700">RM1.00 / batang</p>
+            <p class="mt-1 text-sm opacity-80 min-h-[3rem]">Keenakan campuran buah-buahan.</p>
+            <div class="mt-auto flex items-center justify-between gap-2 pt-3">
+              <span class="text-xs opacity-70">Kuantiti</span>
+              <div class="inline-flex items-center gap-1 border rounded-full px-2 py-1">
+                <button type="button" class="px-2 text-sm flavour-qty-btn" data-action="minus">-</button>
+                <input type="number" min="1" value="1" class="w-14 text-center text-sm outline-none bg-transparent flavour-qty-input"/>
+                <button type="button" class="px-2 text-sm flavour-qty-btn" data-action="plus">+</button>
+              </div>
+            </div>
+            <button type="button" class="mt-2 w-full rounded-2xl px-3 py-2 text-sm font-semibold bg-gray-900 text-white hover:opacity-90 add-to-cart" data-name="Tutti Fruiti">
+              Tambah ke Troli
+            </button>
+          </div>
+        </div>
+
+        <!-- 14 -->
+        <div class="rounded-3xl border overflow-hidden hover:shadow-md transition flex flex-col" data-flavour="Blueberry">
+          <div class="aspect-[4/5] overflow-hidden relative">
+            <img src="blueberry.png" alt="Blueberry" class="w-full h-full object-contain"/>
+            <div class="soldout-badge hidden absolute top-3 left-3 rounded-full px-3 py-1 text-xs font-black bg-red-600 text-white shadow">SOLD OUT</div>
+          </div>
+          <div class="p-4 flex flex-col flex-1">
+            <div class="flex items-center justify-between gap-2">
+              <h3 class="font-bold text-lg">Blueberry</h3>
+              <span class="inline-flex items-center rounded-full border px-2 py-1 text-xs font-medium">Halal</span>
+            </div>
+            <p class="mt-1 text-sm font-semibold text-emerald-700">RM1.00 / batang</p>
+            <p class="mt-1 text-sm opacity-80 min-h-[3rem]">Rasa beri yang manis dan menyegarkan.</p>
+            <div class="mt-auto flex items-center justify-between gap-2 pt-3">
+              <span class="text-xs opacity-70">Kuantiti</span>
+              <div class="inline-flex items-center gap-1 border rounded-full px-2 py-1">
+                <button type="button" class="px-2 text-sm flavour-qty-btn" data-action="minus">-</button>
+                <input type="number" min="1" value="1" class="w-14 text-center text-sm outline-none bg-transparent flavour-qty-input"/>
+                <button type="button" class="px-2 text-sm flavour-qty-btn" data-action="plus">+</button>
+              </div>
+            </div>
+            <button type="button" class="mt-2 w-full rounded-2xl px-3 py-2 text-sm font-semibold bg-gray-900 text-white hover:opacity-90 add-to-cart" data-name="Blueberry">
+              Tambah ke Troli
+            </button>
+          </div>
+        </div>
+
+        <!-- 15 -->
+        <div class="rounded-3xl border overflow-hidden hover:shadow-md transition flex flex-col" data-flavour="Oreo">
+          <div class="aspect-[4/5] overflow-hidden relative">
+            <img src="oreo.png" alt="Oreo" class="w-full h-full object-cover"/>
+            <div class="soldout-badge hidden absolute top-3 left-3 rounded-full px-3 py-1 text-xs font-black bg-red-600 text-white shadow">SOLD OUT</div>
+          </div>
+          <div class="p-4 flex flex-col flex-1">
+            <div class="flex items-center justify-between gap-2">
+              <h3 class="font-bold text-lg">Oreo</h3>
+              <span class="inline-flex items-center rounded-full border px-2 py-1 text-xs font-medium">Halal</span>
+            </div>
+            <p class="mt-1 text-sm font-semibold text-emerald-700">RM1.00 / batang</p>
+            <p class="mt-1 text-sm opacity-80 min-h-[3rem]">Biskut rangup dalam krim.</p>
+            <div class="mt-auto flex items-center justify-between gap-2 pt-3">
+              <span class="text-xs opacity-70">Kuantiti</span>
+              <div class="inline-flex items-center gap-1 border rounded-full px-2 py-1">
+                <button type="button" class="px-2 text-sm flavour-qty-btn" data-action="minus">-</button>
+                <input type="number" min="1" value="1" class="w-14 text-center text-sm outline-none bg-transparent flavour-qty-input"/>
+                <button type="button" class="px-2 text-sm flavour-qty-btn" data-action="plus">+</button>
+              </div>
+            </div>
+            <button type="button" class="mt-2 w-full rounded-2xl px-3 py-2 text-sm font-semibold bg-gray-900 text-white hover:opacity-90 add-to-cart" data-name="Oreo">
+              Tambah ke Troli
+            </button>
+          </div>
+        </div>
+
       </div>
 
-      <!-- Button Semak Pesanan Anda (selepas perisa) -->
+      <!-- CTA selepas perisa -->
       <div class="mt-10 flex justify-center">
-        <button id="reviewOrderBtn"
-          class="rounded-2xl px-6 py-3 border font-extrabold hover:shadow flex items-center gap-3 transition"
-        >
-          <i class="fa-solid fa-clipboard-check"></i>
-          <span>Semak Pesanan Anda</span>
-          <span id="reviewOrderCount"
-            class="ml-1 inline-flex items-center justify-center rounded-full text-xs px-2 py-0.5 bg-gray-900 text-white"
-          >0</span>
+        <button id="perisaCheckOrderBtn"
+                class="relative w-full max-w-md rounded-2xl px-6 py-4 bg-orange-500 text-white font-bold shadow-lg hover:bg-orange-600 flex items-center justify-center gap-2 opacity-60 transition">
+          <i class="fa-solid fa-cart-shopping"></i>
+          Semak Pesanan Anda
+          <span id="perisaOrderQty"
+                class="ml-2 inline-flex items-center justify-center rounded-full text-xs px-2 py-0.5 bg-white text-gray-900 font-bold">0</span>
         </button>
       </div>
-      <p class="mt-3 text-center text-xs opacity-70">Flow: Pilih perisa → klik Semak Pesanan → semak & hantar</p>
     </section>
 
-    <!-- HARGA (pakej) -->
+    <!-- HARGA -->
     <section id="harga" class="mx-auto max-w-6xl px-4 py-20">
       <div class="mx-auto max-w-3xl text-center mb-12">
         <p class="text-sm uppercase tracking-widest opacity-70">Pek & Pakej</p>
@@ -224,8 +602,8 @@
           Harga asas <strong>RM1.00 sebatang</strong>. Pakej istimewa untuk kuantiti besar & majlis.
         </p>
       </div>
+
       <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <!-- Pakej 15 -->
         <div class="rounded-3xl border p-6 hover:shadow-md transition flex flex-col">
           <div>
             <h3 class="font-bold text-xl">15 Batang</h3>
@@ -237,16 +615,13 @@
             <a id="waHarga1" href="#" class="inline-block rounded-2xl px-4 py-2 border text-sm font-semibold hover:shadow text-center">
               WhatsApp Pakej Ini →
             </a>
-            <button
-              class="rounded-2xl px-4 py-2 border text-sm font-semibold hover:shadow add-package-to-cart"
-              data-name="Pakej 15 Batang (1 setiap perisa)"
-              data-sticks="15">
+            <button type="button" class="rounded-2xl px-4 py-2 border text-sm font-semibold hover:shadow add-package-to-cart"
+                    data-name="Pakej 15 Batang (1 setiap perisa)" data-sticks="15">
               Tambah Pakej ke Troli
             </button>
           </div>
         </div>
 
-        <!-- Pakej 30 -->
         <div class="rounded-3xl border p-6 hover:shadow-md transition flex flex-col">
           <div>
             <h3 class="font-bold text-xl">30 Batang</h3>
@@ -258,16 +633,13 @@
             <a id="waHarga2" href="#" class="inline-block rounded-2xl px-4 py-2 border text-sm font-semibold hover:shadow text-center">
               WhatsApp Pakej Ini →
             </a>
-            <button
-              class="rounded-2xl px-4 py-2 border text-sm font-semibold hover:shadow add-package-to-cart"
-              data-name="Pakej 30 Batang (2 setiap perisa)"
-              data-sticks="30">
+            <button type="button" class="rounded-2xl px-4 py-2 border text-sm font-semibold hover:shadow add-package-to-cart"
+                    data-name="Pakej 30 Batang (2 setiap perisa)" data-sticks="30">
               Tambah Pakej ke Troli
             </button>
           </div>
         </div>
 
-        <!-- Pakej 50 -->
         <div class="rounded-3xl border p-6 hover:shadow-md transition flex flex-col">
           <div>
             <h3 class="font-bold text-xl">50 Batang</h3>
@@ -279,16 +651,13 @@
             <a id="waHarga3" href="#" class="inline-block rounded-2xl px-4 py-2 border text-sm font-semibold hover:shadow text-center">
               WhatsApp Pakej Ini →
             </a>
-            <button
-              class="rounded-2xl px-4 py-2 border text-sm font-semibold hover:shadow add-package-to-cart"
-              data-name="Pakej 50 Batang (Mix Flavour)"
-              data-sticks="50">
+            <button type="button" class="rounded-2xl px-4 py-2 border text-sm font-semibold hover:shadow add-package-to-cart"
+                    data-name="Pakej 50 Batang (Mix Flavour)" data-sticks="50">
               Tambah Pakej ke Troli
             </button>
           </div>
         </div>
 
-        <!-- Pakej Majlis -->
         <div class="rounded-3xl border p-6 hover:shadow-md transition flex flex-col">
           <div>
             <h3 class="font-bold text-xl">Pakej Majlis</h3>
@@ -300,15 +669,14 @@
             <a id="waHarga4" href="#" class="inline-block rounded-2xl px-4 py-2 border text-sm font-semibold hover:shadow text-center">
               WhatsApp Pakej Ini →
             </a>
-            <button
-              class="rounded-2xl px-4 py-2 border text-sm font-semibold hover:shadow add-package-to-cart"
-              data-name="Pakej Majlis (100 batang + penghantaran)"
-              data-sticks="100">
+            <button type="button" class="rounded-2xl px-4 py-2 border text-sm font-semibold hover:shadow add-package-to-cart"
+                    data-name="Pakej Majlis (100 batang + penghantaran)" data-sticks="100">
               Tambah Pakej ke Troli
             </button>
           </div>
         </div>
       </div>
+
       <p class="mt-6 text-center text-sm opacity-70">* Harga boleh berubah mengikut kos bahan & lokasi.</p>
     </section>
 
@@ -318,10 +686,11 @@
       <div class="mx-auto max-w-5xl px-4 py-16 text-center">
         <h2 class="text-3xl md:text-4xl font-extrabold">Sedia Buat Tempahan?</h2>
         <p class="mt-2 opacity-80">
-          Tambah perisa atau pakej ke troli, semak pesanan, dan klik Hantar Pesanan untuk hantar melalui WhatsApp.
+          Tambah perisa atau pakej ke troli, semak pesanan, dan hantar melalui WhatsApp.
         </p>
         <div class="mt-6 flex flex-wrap gap-3 justify-center">
-          <button id="cartBtnCTA" class="rounded-2xl px-6 py-3 font-semibold hover:shadow flex items-center gap-2 bg-amber-400 border border-amber-500">
+          <button id="cartBtnCTA"
+                  class="rounded-2xl px-6 py-3 bg-orange-500 text-white font-bold hover:bg-orange-600 shadow flex items-center gap-2">
             <i class="fa-solid fa-cart-shopping"></i>
             Buka Troli
           </button>
@@ -360,20 +729,36 @@
       </div>
       <div class="divide-y rounded-3xl border overflow-hidden bg-white">
         <details>
-          <summary class="cursor-pointer select-none list-none px-5 py-4 font-semibold hover:bg-gray-50">Adakah aiskrim anda halal?</summary>
-          <div class="px-5 pb-5 text-sm opacity-90">Ya. Semua bahan diperoleh daripada pembekal yang mempunyai pensijilan halal.</div>
+          <summary class="cursor-pointer select-none list-none px-5 py-4 font-semibold hover:bg-gray-50">
+            Adakah aiskrim anda halal?
+          </summary>
+          <div class="px-5 pb-5 text-sm opacity-90">
+            Ya. Semua bahan diperoleh daripada pembekal yang mempunyai pensijilan halal.
+          </div>
         </details>
         <details>
-          <summary class="cursor-pointer select-none list-none px-5 py-4 font-semibold hover:bg-gray-50">Kawasan penghantaran?</summary>
-          <div class="px-5 pb-5 text-sm opacity-90">Penghantaran sekitar Kuantan dan ke seluruh negara. Caj bergantung jarak. Ambil sendiri juga dialu-alukan.</div>
+          <summary class="cursor-pointer select-none list-none px-5 py-4 font-semibold hover:bg-gray-50">
+            Kawasan penghantaran?
+          </summary>
+          <div class="px-5 pb-5 text-sm opacity-90">
+            Penghantaran sekitar Kuantan dan ke seluruh negara. Caj bergantung jarak. Ambil sendiri juga dialu-alukan.
+          </div>
         </details>
         <details>
-          <summary class="cursor-pointer select-none list-none px-5 py-4 font-semibold hover:bg-gray-50">Berapa minimum tempahan?</summary>
-          <div class="px-5 pb-5 text-sm opacity-90">Untuk harga promosi, minimum 50 batang. Pakej majlis tersedia mengikut keperluan.</div>
+          <summary class="cursor-pointer select-none list-none px-5 py-4 font-semibold hover:bg-gray-50">
+            Berapa minimum tempahan?
+          </summary>
+          <div class="px-5 pb-5 text-sm opacity-90">
+            Untuk harga promosi, minimum 50 batang. Pakej majlis tersedia mengikut keperluan.
+          </div>
         </details>
         <details>
-          <summary class="cursor-pointer select-none list-none px-5 py-4 font-semibold hover:bg-gray-50">Cara simpan?</summary>
-          <div class="px-5 pb-5 text-sm opacity-90">Simpan pada -18°C ke bawah. Elakkan kitaran beku-cair berulang untuk kekalkan tekstur.</div>
+          <summary class="cursor-pointer select-none list-none px-5 py-4 font-semibold hover:bg-gray-50">
+            Cara simpan?
+          </summary>
+          <div class="px-5 pb-5 text-sm opacity-90">
+            Simpan pada -18°C ke bawah. Elakkan kitaran beku-cair berulang untuk kekalkan tekstur.
+          </div>
         </details>
       </div>
     </section>
@@ -393,7 +778,7 @@
             Sabtu: 10.00 pagi – 2.00 petang<br/>
             Ahad & Cuti Umum: Tutup
           </p>
-          <a id="waHubungi" href="#" class="mt-4 inline-block rounded-2xl px-4 py-2 font-semibold hover:shadow bg-green-600 text-white border border-green-700">
+          <a id="waHubungi" href="#" class="mt-4 inline-block rounded-2xl px-4 py-2 border font-semibold hover:shadow">
             Hubungi
           </a>
         </div>
@@ -428,129 +813,125 @@
         <p class="mt-1">TikTok: <a class="underline" href="#">Crema H&amp;A</a></p>
       </div>
 
-      <div class="flex md:justify-end gap-2">
-        <a id="waFooter" href="#" class="rounded-2xl px-4 py-2 font-semibold hover:shadow flex items-center gap-2 justify-center bg-green-600 text-white border border-green-700">
+      <div class="flex md:justify-end">
+        <a id="waFooter" href="#"
+           class="rounded-2xl px-4 py-2 bg-green-600 text-white font-semibold hover:bg-green-700 shadow flex items-center gap-2 justify-center">
           <i class="fa-brands fa-whatsapp text-xl"></i>
           Tempah via WhatsApp
         </a>
-        <button id="adminOpenBtnFooter" class="rounded-2xl px-4 py-2 border font-semibold hover:shadow">
-          Admin
-        </button>
       </div>
     </div>
   </footer>
 
   <!-- MODAL TROLI -->
-  <div id="cartModal" class="fixed inset-0 z-[60] modal-hidden" aria-hidden="true">
-    <!-- backdrop -->
-    <div class="absolute inset-0 bg-black/40"></div>
+  <div id="cartModal" class="fixed inset-0 z-[60] hidden">
+    <div id="cartBackdrop" class="absolute inset-0 bg-black/40"></div>
 
-    <!-- panel -->
-    <div class="relative max-w-3xl mx-auto mt-6 md:mt-16 px-3">
-      <div id="cartPanel" class="bg-white rounded-3xl shadow-xl border overflow-hidden cart-panel modal-shell" role="dialog" aria-modal="true" aria-labelledby="cartTitle">
-        <div class="flex items-center justify-between px-6 py-4 border-b">
-          <h3 id="cartTitle" class="font-bold text-lg flex items-center gap-2">
-            <i class="fa-solid fa-cart-shopping"></i>
-            Troli Pesanan
-          </h3>
+    <div id="cartPanel"
+         class="relative max-w-xl mx-auto mt-16 md:mt-20 bg-white rounded-3xl shadow-xl border flex flex-col max-h-[90vh] overflow-hidden transition-all duration-200 ease-out opacity-0 -translate-y-3">
+      <!-- Header -->
+      <div class="flex items-center justify-between px-6 py-4 border-b">
+        <h3 class="font-bold text-lg flex items-center gap-2">
+          <i class="fa-solid fa-cart-shopping"></i>
+          Troli Pesanan
+        </h3>
+        <div class="flex items-center gap-2">
+          <button id="cartCloseIcon" type="button" aria-label="Tutup troli"
+                  class="w-9 h-9 grid place-items-center rounded-full hover:bg-gray-100">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+          <button id="cartCloseBtn" type="button" class="text-sm px-3 py-1 rounded-full border hover:bg-gray-50">
+            Tutup
+          </button>
+        </div>
+      </div>
 
-          <div class="flex items-center gap-2">
-            <!-- X close -->
-            <button id="cartCloseX" class="h-9 w-9 grid place-items-center rounded-full border hover:bg-gray-50" aria-label="Tutup Troli">
-              <i class="fa-solid fa-xmark"></i>
-            </button>
-            <!-- existing Tutup -->
-            <button id="cartCloseBtn" class="text-sm px-3 py-1 rounded-full border hover:bg-gray-50">
-              Tutup
-            </button>
-          </div>
+      <!-- Scrollable content -->
+      <div id="cartScrollArea" class="flex-1 overflow-y-auto">
+        <div id="cartEmptyState" class="px-6 py-6 text-center text-sm opacity-70">
+          Troli masih kosong. Tambah perisa atau pakej dari menu <strong>Perisa Popular</strong> atau <strong>Harga</strong>.
         </div>
 
-        <!-- Scroll body -->
-        <div class="modal-body-scroll">
-          <div id="cartEmptyState" class="px-6 py-6 text-center text-sm opacity-70">
-            Troli masih kosong. Tambah perisa atau pakej dari menu <strong>Perisa Popular</strong> atau <strong>Harga</strong>.
+        <div id="cartItemsWrapper" class="px-6 py-4">
+          <table class="w-full text-sm">
+            <thead class="border-b">
+              <tr class="text-left">
+                <th class="py-2">Item</th>
+                <th class="py-2 text-center">Kuantiti</th>
+                <th class="py-2 text-right">Jumlah (RM)</th>
+                <th class="py-2"></th>
+              </tr>
+            </thead>
+            <tbody id="cartItems"></tbody>
+          </table>
+        </div>
+
+        <!-- Order form -->
+        <div class="px-6 py-4 bg-white border-t space-y-3">
+          <div>
+            <label class="block text-xs font-semibold mb-1">Nama <span class="text-red-600">*</span></label>
+            <input id="orderName" type="text" placeholder="Contoh: Siti Aminah"
+                   class="w-full rounded-xl border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400" />
+            <p class="mt-1 text-[11px] opacity-70">* Nama wajib diisi untuk hantar pesanan.</p>
           </div>
 
-          <div class="px-6 py-4">
-            <table class="w-full text-sm">
-              <thead class="border-b">
-                <tr class="text-left">
-                  <th class="py-2">Item</th>
-                  <th class="py-2 text-center">Kuantiti</th>
-                  <th class="py-2 text-right">Jumlah (RM)</th>
-                  <th class="py-2"></th>
-                </tr>
-              </thead>
-              <tbody id="cartItems"></tbody>
-            </table>
-          </div>
-
-          <!-- Form -->
-          <div class="px-6 pb-6">
-            <div class="rounded-2xl border p-4">
-              <h4 class="font-extrabold text-sm mb-3 flex items-center gap-2">
-                <i class="fa-solid fa-pen-to-square"></i> Maklumat Pesanan
-              </h4>
-
-              <div class="grid md:grid-cols-2 gap-3">
-                <div>
-                  <label class="text-xs font-semibold opacity-80">Nama (wajib)</label>
-                  <input id="orderName" type="text" class="mt-1 w-full rounded-xl border px-3 py-2 text-sm" placeholder="Contoh: Siti Aminah">
-                  <p id="nameError" class="text-xs text-red-600 mt-1 hidden">Sila isi nama sebelum hantar pesanan.</p>
-                </div>
-
-                <div>
-                  <label class="text-xs font-semibold opacity-80">Tarikh & masa (optional)</label>
-                  <input id="orderDateTime" type="text" class="mt-1 w-full rounded-xl border px-3 py-2 text-sm" placeholder="Contoh: 12/1 3:00pm">
-                </div>
-              </div>
-
-              <div class="mt-3">
-                <label class="text-xs font-semibold opacity-80">Kaedah</label>
-                <div class="mt-2 flex flex-wrap gap-3 text-sm">
-                  <label class="inline-flex items-center gap-2 border rounded-xl px-3 py-2 cursor-pointer">
-                    <input type="radio" name="deliveryMode" value="Pickup" id="modePickup">
-                    Pickup (Ambil sendiri)
-                  </label>
-                  <label class="inline-flex items-center gap-2 border rounded-xl px-3 py-2 cursor-pointer">
-                    <input type="radio" name="deliveryMode" value="Delivery" id="modeDelivery" checked>
-                    Delivery (Penghantaran)
-                  </label>
-                </div>
-              </div>
-
-              <div class="mt-3">
-                <label class="text-xs font-semibold opacity-80">Lokasi penghantaran / pickup (optional)</label>
-                <input id="orderLocation" type="text" class="mt-1 w-full rounded-xl border px-3 py-2 text-sm" placeholder="Contoh: Taman Tas, Kuantan">
-              </div>
-
-              <div class="mt-3">
-                <label class="text-xs font-semibold opacity-80">Catatan lain (optional)</label>
-                <textarea id="orderNotes" rows="2" class="mt-1 w-full rounded-xl border px-3 py-2 text-sm" placeholder="Contoh: Tolong asingkan perisa jagung"></textarea>
-              </div>
+          <div>
+            <label class="block text-xs font-semibold mb-2">Kaedah</label>
+            <div class="grid grid-cols-2 gap-2">
+              <label class="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm cursor-pointer hover:bg-gray-50">
+                <input type="radio" name="orderMethod" value="Pickup" class="accent-orange-500" checked>
+                <span>Pickup</span>
+              </label>
+              <label class="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm cursor-pointer hover:bg-gray-50">
+                <input type="radio" name="orderMethod" value="Delivery" class="accent-orange-500">
+                <span>Delivery</span>
+              </label>
             </div>
           </div>
-        </div>
 
-        <!-- Sticky footer actions -->
-        <div class="border-t px-6 py-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between bg-gray-50">
+          <div>
+            <label class="block text-xs font-semibold mb-1">Tarikh & Masa Penghantaran / Ambil</label>
+            <input id="orderDate" type="datetime-local"
+                   class="w-full rounded-xl border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold mb-1">Lokasi Penghantaran / Ambil</label>
+            <textarea id="orderLocation" rows="2" placeholder="Contoh: SK Pandan, Kuantan"
+                      class="w-full rounded-xl border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"></textarea>
+          </div>
+
+          <p class="text-xs text-center opacity-70">
+            Pesanan akan dihantar melalui WhatsApp untuk pengesahan.
+          </p>
+        </div>
+      </div>
+
+      <!-- Sticky action bar -->
+      <div class="border-t px-6 py-4 bg-gray-50">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div class="text-sm">
             <div>Jumlah batang: <span id="cartTotalQty" class="font-semibold">0</span></div>
             <div>Jumlah harga: <span id="cartTotalPrice" class="font-semibold">RM0.00</span></div>
             <div class="text-xs opacity-70 mt-1">Harga tetap RM1.00 sebatang.</div>
           </div>
 
-          <div class="flex flex-col sm:flex-row gap-2 mt-2 md:mt-0">
-            <button id="cartClearBtn" class="rounded-2xl px-4 py-2 border text-sm hover:bg-white">
-              Kosongkan Troli
-            </button>
-
-            <button id="sendOrderBtn"
-              class="rounded-2xl px-4 py-2 border bg-green-600 text-white text-sm font-extrabold hover:bg-green-700 flex items-center justify-center gap-2"
-            >
+          <div class="flex flex-col sm:flex-row gap-2">
+            <button id="cartSendOrderBtn" type="button"
+                    class="rounded-2xl px-4 py-2 bg-emerald-600 text-white text-sm font-bold hover:bg-emerald-700 flex items-center justify-center gap-2">
               <i class="fa-brands fa-whatsapp text-lg"></i>
               Hantar Pesanan
+            </button>
+
+            <button id="cartCheckoutBtn" type="button"
+                    class="rounded-2xl px-4 py-2 bg-green-600 text-white text-sm font-semibold hover:bg-green-700 flex items-center justify-center gap-2">
+              <i class="fa-brands fa-whatsapp text-lg"></i>
+              Checkout
+            </button>
+
+            <button id="cartClearBtn" type="button"
+                    class="rounded-2xl px-4 py-2 border border-red-300 text-red-600 text-sm hover:bg-red-50">
+              Kosongkan Troli
             </button>
           </div>
         </div>
@@ -558,141 +939,199 @@
     </div>
   </div>
 
-  <!-- MODAL ADMIN -->
-  <div id="adminModal" class="fixed inset-0 z-[80] modal-hidden" aria-hidden="true">
-    <div class="absolute inset-0 bg-black/50"></div>
+  <!-- WIDGET VISITOR + TARIKH/MASA (TOP RIGHT) -->
+  <div id="visitorWidget"
+       class="fixed top-24 right-4 z-[70] bg-white/95 border rounded-2xl shadow-lg px-4 py-3 text-xs md:text-sm flex flex-col gap-1
+              transition-opacity transition-transform duration-200 ease-out opacity-100 translate-y-0">
+    <div>
+      <span class="font-semibold">Pelawat (browser ini):</span>
+      <span id="visitorCounter">0</span>
+    </div>
+    <div>
+      <span class="font-semibold">Tarikh & masa:</span>
+      <span id="dateTimeDisplay">-</span>
+    </div>
+  </div>
 
-    <div class="relative max-w-3xl mx-auto mt-6 md:mt-16 px-3">
-      <div id="adminPanel" class="bg-white rounded-3xl shadow-xl border overflow-hidden cart-panel modal-shell" role="dialog" aria-modal="true" aria-labelledby="adminTitle">
-        <div class="flex items-center justify-between px-6 py-4 border-b">
-          <h3 id="adminTitle" class="font-black text-lg flex items-center gap-2">
-            <i class="fa-solid fa-user-shield"></i>
-            Admin: Sold Out / Available
-          </h3>
+  <!-- STICKY BOTTOM CTA (MOBILE) -->
+  <div id="bottomOrderBar" class="fixed bottom-0 inset-x-0 z-[55] bg-white border-t shadow md:hidden hidden">
+    <div class="max-w-6xl mx-auto px-4 py-3">
+      <button id="bottomReviewOrderBtn"
+              class="w-full rounded-2xl px-4 py-3 bg-orange-500 text-white font-bold flex items-center justify-center gap-2 hover:bg-orange-600 shadow">
+        <i class="fa-solid fa-cart-shopping"></i>
+        Semak Pesanan
+        <span id="bottomOrderQty"
+              class="ml-2 inline-flex items-center justify-center rounded-full text-xs px-2 py-0.5 bg-white text-gray-900">0</span>
+      </button>
+    </div>
+  </div>
 
-          <div class="flex items-center gap-2">
-            <button id="adminCloseX" class="h-9 w-9 grid place-items-center rounded-full border hover:bg-gray-50" aria-label="Tutup Admin">
-              <i class="fa-solid fa-xmark"></i>
+  <!-- ADMIN FLOATING BUTTON -->
+  <button id="adminOpenBtn"
+          class="fixed bottom-4 left-4 z-[75] rounded-2xl px-4 py-2 bg-gray-900 text-white text-sm font-semibold shadow hover:opacity-90">
+    Admin
+  </button>
+
+  <!-- ADMIN MODAL -->
+  <div id="adminModal" class="fixed inset-0 z-[80] hidden">
+    <div id="adminBackdrop" class="absolute inset-0 bg-black/40"></div>
+
+    <div id="adminPanel"
+         class="relative max-w-xl mx-auto mt-16 md:mt-20 bg-white rounded-3xl shadow-xl border flex flex-col max-h-[90vh] overflow-hidden transition-all duration-200 ease-out opacity-0 -translate-y-3">
+      <div class="flex items-center justify-between px-6 py-4 border-b">
+        <h3 class="font-bold text-lg flex items-center gap-2">
+          <i class="fa-solid fa-user-shield"></i>
+          Admin (Sold Out / Available)
+        </h3>
+        <div class="flex items-center gap-2">
+          <button id="adminCloseIcon" type="button" aria-label="Tutup"
+                  class="w-9 h-9 grid place-items-center rounded-full hover:bg-gray-100">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+          <button id="adminCloseBtn" type="button" class="text-sm px-3 py-1 rounded-full border hover:bg-gray-50">
+            Tutup
+          </button>
+        </div>
+      </div>
+
+      <div class="flex-1 overflow-y-auto px-6 py-5">
+        <!-- Login -->
+        <div id="adminLoginView" class="space-y-3">
+          <p class="text-sm opacity-80">
+            Log masuk untuk ubah status perisa (GLOBAL).
+          </p>
+          <div>
+            <label class="block text-xs font-semibold mb-1">Password Admin</label>
+            <input id="adminPassword" type="password" placeholder="Masukkan password"
+                   class="w-full rounded-xl border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900">
+          </div>
+          <button id="adminLoginBtn" type="button"
+                  class="w-full rounded-2xl px-4 py-3 bg-gray-900 text-white font-bold hover:opacity-90">
+            Login
+          </button>
+          <p id="adminLoginMsg" class="text-sm text-red-600 hidden"></p>
+        </div>
+
+        <!-- Panel -->
+        <div id="adminManageView" class="hidden space-y-4">
+          <div class="flex items-center justify-between gap-2">
+            <div class="text-sm">
+              <div class="font-semibold">Status Perisa</div>
+              <div class="text-xs opacity-70">Toggle untuk set Sold Out / Available.</div>
+            </div>
+            <button id="adminLogoutBtn" type="button"
+                    class="rounded-2xl px-4 py-2 border text-sm hover:bg-gray-50">
+              Logout
             </button>
-            <button id="adminCloseBtn" class="text-sm px-3 py-1 rounded-full border hover:bg-gray-50">Tutup</button>
-          </div>
-        </div>
-
-        <div class="modal-body-scroll px-6 py-5">
-          <div id="adminLoginBox" class="rounded-2xl border p-4">
-            <p class="font-extrabold mb-2">Login Admin</p>
-            <p class="text-sm opacity-80 mb-3">Masukkan password admin (set di Netlify Environment Variables).</p>
-
-            <div class="flex flex-col sm:flex-row gap-2">
-              <input id="adminPassword" type="password" class="w-full rounded-xl border px-3 py-2 text-sm" placeholder="Password admin">
-              <button id="adminLoginBtn" class="rounded-xl px-4 py-2 text-sm font-extrabold bg-gray-900 text-white hover:opacity-90">
-                Login
-              </button>
-            </div>
-            <p id="adminLoginMsg" class="text-sm mt-2"></p>
           </div>
 
-          <div id="adminControlBox" class="mt-4 rounded-2xl border p-4 hidden">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-              <div>
-                <p class="font-extrabold">Senarai Perisa (GLOBAL)</p>
-                <p class="text-xs opacity-70">Toggle OFF = Sold Out (pelawat tak boleh add to cart).</p>
-              </div>
-              <div class="flex gap-2">
-                <button id="adminRefreshBtn" class="rounded-xl px-3 py-2 border text-sm font-semibold hover:shadow">Refresh</button>
-                <button id="adminSaveBtn" class="rounded-xl px-4 py-2 bg-green-600 text-white text-sm font-extrabold hover:bg-green-700">
-                  Simpan Perubahan
-                </button>
-              </div>
-            </div>
+          <div id="adminList" class="grid gap-2"></div>
 
-            <div id="adminFlavourList" class="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
-
-            <p id="adminSaveMsg" class="text-sm mt-3"></p>
+          <div class="pt-2">
+            <button id="adminSaveBtn" type="button"
+                    class="w-full rounded-2xl px-4 py-3 bg-emerald-600 text-white font-bold hover:bg-emerald-700">
+              Simpan Perubahan (GLOBAL)
+            </button>
+            <p id="adminSaveMsg" class="mt-2 text-sm hidden"></p>
           </div>
-        </div>
-
-        <div class="border-t px-6 py-4 bg-gray-50 text-xs opacity-70">
-          Tip: Jika token tamat, login semula. (Token sah 12 jam)
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    // =========================
-    // CONFIG
-    // =========================
-    const PHONE = '60148315668'; // WhatsApp number (tanpa +)
+    // ================= SETTINGS =================
+    const PHONE = '60148315668';
     const PRICE_PER_STICK = 1.0;
 
-    // Netlify Functions endpoints (relative)
-    const AVAIL_API = "/.netlify/functions/get-availability";
-    const ADMIN_LOGIN_API = "/.netlify/functions/admin-login";
-    const ADMIN_SAVE_API = "/.netlify/functions/admin-update-availability";
-
-    // auto refresh availability setiap 30s (public)
-    const AVAIL_REFRESH_MS = 30000;
-
-    // Auto buka troli bila tambah item
-    const AUTO_OPEN_CART_MODE = "always"; // requested
-
     const msgGeneral = 'Hai, saya nak tempah CREMA aiskrim Malaysia.';
-    const msg15 = 'Hai, saya berminat 15 batang (RM15.00).';
-    const msg30 = 'Hai, saya berminat 30 batang (RM30.00).';
-    const msg50 = 'Hai, saya berminat 50 batang (RM50.00).';
-    const msgPakej = 'Hai, saya berminat Pakej Majlis (RM100).';
+    const msgP15 = 'Hai, saya berminat 15 batang (RM15.00).';
+    const msgP30 = 'Hai, saya berminat 30 batang (RM30.00).';
+    const msgP50 = 'Hai, saya berminat 50 batang (RM50.00).';
+    const msgP100 = 'Hai, saya berminat Pakej Majlis (RM100).';
 
     const wa = (text) => `https://wa.me/${PHONE}?text=${encodeURIComponent(text)}`;
+    const AUTO_OPEN_CART_MODE = "always";
 
     const FLAVOURS = [
-      { name: 'Double Coklat', img: 'double-coklat.png', desc: 'Lemak berkrim, klasik sepanjang zaman.' },
-      { name: 'Coklat Cheese', img: 'coklat-cheese.png', desc: 'Koko pekat dengan tekstur lembut.' },
-      { name: 'Choki-Choki', img: 'choki-choki.png', desc: 'Manis coklat sebenar, menyegarkan.' },
-      { name: 'Jagung Original', img: 'jagung-original.png', desc: 'Harum manis, kegemaran ramai.' },
-      { name: 'Jagung Coklat', img: 'jagung-coklat.png', desc: 'Jagung bercampur coklat, manis berlemak.' },
-      { name: 'Jagung Cheese', img: 'jagung-cheese.png', desc: 'Keenakan jagung lemak berkrim.' },
-      { name: 'Bandung Original', img: 'bandung-original.png', desc: 'Rasa lokal yang memikat.' },
-      { name: 'Bandung Coklat', img: 'bandung-coklat.png', desc: 'Lemak, lembut, wangi.' },
-      { name: 'Matcha Cheese', img: 'matcha-cheese.png', desc: 'Kelainan matcha dan cheese memikat rasa.' },
-      { name: 'Matcha Coklat', img: 'matcha-coklat.png', desc: 'Keenakan matcha bersama coklat berkrim.' },
-      { name: 'Keladi Coklat', img: 'keladi-coklat.png', desc: 'Rasa klasik yang memikat.' },
-      { name: 'Keladi Cheese', img: 'keladi-cheese.png', desc: 'Gabungan keladi dan cheese gaya moden.' },
-      { name: 'Tutti Fruiti', img: 'tutti.png', desc: 'Keenakan campuran buah-buahan.' },
-      { name: 'Blueberry', img: 'blueberry.png', desc: 'Rasa beri yang manis dan menyegarkan.' },
-      { name: 'Oreo', img: 'oreo.png', desc: 'Biskut rangup dalam krim.' }
+      'Double Coklat','Coklat Cheese','Choki-Choki','Jagung Original','Jagung Coklat',
+      'Jagung Cheese','Bandung Original','Bandung Coklat','Matcha Cheese','Matcha Coklat',
+      'Keladi Coklat','Keladi Cheese','Tutti Fruiti','Blueberry','Oreo'
     ];
 
-    // availability: { [flavourName]: true/false } true=available, false=sold out
-    let availability = {}; // will load from remote
-    let isAdminEditing = false;
+    // Netlify Functions endpoints
+    const API = {
+      getAvailability: '/.netlify/functions/get-availability',
+      adminLogin: '/.netlify/functions/admin-login',
+      adminUpdate: '/.netlify/functions/admin-update-available'
+    };
 
-    // cart: { [name]: { units, sticksPerUnit } }
+    // Token storage (session only)
+    const ADMIN_TOKEN_KEY = 'cremaAdminToken';
+
+    // Availability map: true=Available, false=SoldOut
+    let availability = {};        // { "Oreo": true/false }
+    let lastAvailabilityHash = ''; // detect changes
+
+    // Cart: { name: { units, sticksPerUnit } }
     const cart = {};
 
-    // perisa selector qty (before add)
-    const selectionQty = {}; // { [flavourName]: number }
+    // Order name localStorage
+    const LS_NAME_KEY = 'cremaOrderName';
 
-    // =========================
-    // Helpers
-    // =========================
-    function safeJsonParse(str, fallback) {
-      try { return JSON.parse(str); } catch { return fallback; }
+    // Visitor widget behavior (mobile only)
+    const isMobile = () => window.matchMedia('(max-width: 767px)').matches;
+    let __cartIsOpen = false;
+    let __showVisitorOnNextScroll = false;
+
+    // ================= HELPERS =================
+    function safeText(str) { return (str ?? '').toString(); }
+
+    function hashAvailability(obj) {
+      try {
+        const keys = Object.keys(obj || {}).sort();
+        const parts = keys.map(k => `${k}:${obj[k] ? '1' : '0'}`);
+        return parts.join('|');
+      } catch (e) {
+        return '';
+      }
     }
 
-    function getAdminToken() {
-      return sessionStorage.getItem("cremaAdminToken") || "";
+    function isSoldOut(name) {
+      // default available if not set
+      if (!name) return false;
+      if (availability && Object.prototype.hasOwnProperty.call(availability, name)) {
+        return availability[name] === false;
+      }
+      return false;
     }
 
-    function setAdminToken(token) {
-      sessionStorage.setItem("cremaAdminToken", token);
+    function setAvailabilityStatusText(text, isError=false) {
+      const el = document.getElementById('availabilityStatus');
+      if (!el) return;
+      el.textContent = text;
+      el.classList.toggle('text-red-600', !!isError);
+      el.classList.toggle('text-green-700', !isError);
+      el.classList.toggle('opacity-70', true);
     }
 
-    function initCartBase() {
-      FLAVOURS.forEach(f => {
-        if (!cart[f.name]) cart[f.name] = { units: 0, sticksPerUnit: 1 };
-        if (selectionQty[f.name] == null) selectionQty[f.name] = 1;
+    // ================= CART =================
+    function initFlavourCart() {
+      FLAVOURS.forEach(name => {
+        if (!cart[name]) cart[name] = { units: 0, sticksPerUnit: 1 };
       });
+    }
+
+    function addToCart(name, sticksPerUnit = 1, unitsToAdd = 1) {
+      if (!name) return;
+      if (isSoldOut(name)) {
+        alert(`Maaf, "${name}" sedang SOLD OUT.`);
+        return;
+      }
+      const n = Math.max(1, parseInt(unitsToAdd, 10) || 1);
+      if (!cart[name]) cart[name] = { units: 0, sticksPerUnit };
+      cart[name].units += n;
+      renderCartItems();
     }
 
     function getCartSummary() {
@@ -702,218 +1141,60 @@
       return { totalSticks, totalPrice };
     }
 
-    function updateCountsUI() {
-      const { totalSticks } = getCartSummary();
+    function updateCartCounts() {
+      const { totalSticks, totalPrice } = getCartSummary();
 
       const cartCount = document.getElementById('cartCount');
       const cartCountMobile = document.getElementById('cartCountMobile');
       if (cartCount) cartCount.textContent = totalSticks;
       if (cartCountMobile) cartCountMobile.textContent = totalSticks;
 
-      const reviewCount = document.getElementById('reviewOrderCount');
-      if (reviewCount) reviewCount.textContent = totalSticks;
-
-      const reviewBtn = document.getElementById('reviewOrderBtn');
-      if (reviewBtn) {
-        if (totalSticks > 0) {
-          reviewBtn.classList.add("bg-amber-400", "border-amber-500");
-          reviewBtn.classList.remove("border");
-        } else {
-          reviewBtn.classList.remove("bg-amber-400", "border-amber-500");
-          reviewBtn.classList.add("border");
-        }
-      }
-
       const cartTotalQty = document.getElementById('cartTotalQty');
       const cartTotalPrice = document.getElementById('cartTotalPrice');
       if (cartTotalQty) cartTotalQty.textContent = totalSticks;
-      if (cartTotalPrice) cartTotalPrice.textContent = 'RM' + (totalSticks * PRICE_PER_STICK).toFixed(2);
+      if (cartTotalPrice) cartTotalPrice.textContent = 'RM' + totalPrice.toFixed(2);
 
       const emptyState = document.getElementById('cartEmptyState');
       if (emptyState) {
         if (totalSticks === 0) emptyState.classList.remove('hidden');
         else emptyState.classList.add('hidden');
       }
-    }
 
-    // =========================
-    // Availability (Remote)
-    // =========================
-    async function loadAvailabilityRemote() {
-      try {
-        const res = await fetch(AVAIL_API, { cache: "no-store" });
-        const data = await res.json();
-        if (data && data.ok && typeof data.availability === "object") {
-          // Normalize keys: any missing flavours -> default true
-          const out = {};
-          FLAVOURS.forEach(f => {
-            out[f.name] = (data.availability[f.name] !== undefined) ? !!data.availability[f.name] : true;
-          });
-          // Save fallback locally for offline
-          localStorage.setItem("cremaAvailabilityFallback", JSON.stringify(out));
-          return out;
-        }
-      } catch {}
-      return null;
-    }
+      // Bottom bar (mobile)
+      const bottomQty = document.getElementById('bottomOrderQty');
+      const bottomBar = document.getElementById('bottomOrderBar');
+      if (bottomQty) bottomQty.textContent = totalSticks;
+      if (bottomBar) {
+        if (totalSticks > 0) bottomBar.classList.remove('hidden');
+        else bottomBar.classList.add('hidden');
+      }
 
-    function loadAvailabilityFallback() {
-      const cached = safeJsonParse(localStorage.getItem("cremaAvailabilityFallback") || "{}", {});
-      const out = {};
-      FLAVOURS.forEach(f => {
-        out[f.name] = (cached[f.name] !== undefined) ? !!cached[f.name] : true;
-      });
-      return out;
-    }
+      // Perisa CTA count + highlight
+      const perisaQty = document.getElementById('perisaOrderQty');
+      const perisaBtn = document.getElementById('perisaCheckOrderBtn');
+      if (perisaQty) perisaQty.textContent = totalSticks;
+      if (perisaBtn) {
+        perisaBtn.classList.toggle('opacity-60', totalSticks === 0);
+      }
 
-    function applyAvailabilityToUI() {
-      // Update cards states
-      FLAVOURS.forEach(f => {
-        const isAvail = availability[f.name] !== false; // default true
-        const card = document.querySelector(`[data-flavour-card="${cssEscape(f.name)}"]`);
-        if (!card) return;
+      // Highlight "Semak Troli Anda" buttons when cart has items
+      const highlightClasses = ['bg-orange-500', 'text-white', 'border-orange-500', 'shadow'];
+      const normalClasses = ['bg-transparent', 'text-orange-600', 'border-orange-400'];
 
-        const badge = card.querySelector(".soldout-badge");
-        const addBtn = card.querySelector(`[data-add-flavour="${cssEscape(f.name)}"]`);
-        const minusBtn = card.querySelector(`[data-sel-minus="${cssEscape(f.name)}"]`);
-        const plusBtn = card.querySelector(`[data-sel-plus="${cssEscape(f.name)}"]`);
+      const checkBtns = [
+        document.getElementById('checkCartBtn'),
+        document.getElementById('checkCartBtnMobile')
+      ].filter(Boolean);
 
-        if (isAvail) {
-          card.classList.remove("card-dim");
-          if (badge) badge.classList.add("hidden");
-          if (addBtn) { addBtn.disabled = false; addBtn.classList.remove("opacity-50", "cursor-not-allowed"); }
-          if (minusBtn) minusBtn.disabled = false;
-          if (plusBtn) plusBtn.disabled = false;
+      checkBtns.forEach(btn => {
+        if (totalSticks > 0) {
+          normalClasses.forEach(c => btn.classList.remove(c));
+          highlightClasses.forEach(c => btn.classList.add(c));
         } else {
-          card.classList.add("card-dim");
-          if (badge) badge.classList.remove("hidden");
-          if (addBtn) { addBtn.disabled = true; addBtn.classList.add("opacity-50", "cursor-not-allowed"); }
-          if (minusBtn) minusBtn.disabled = true;
-          if (plusBtn) plusBtn.disabled = true;
+          highlightClasses.forEach(c => btn.classList.remove(c));
+          normalClasses.forEach(c => btn.classList.add(c));
         }
       });
-    }
-
-    function cssEscape(str) {
-      // minimal escape for attribute selector usage
-      return String(str).replace(/"/g, '&quot;');
-    }
-
-    // =========================
-    // Render Flavours
-    // =========================
-    function renderFlavourCards() {
-      const grid = document.getElementById("flavourGrid");
-      if (!grid) return;
-      grid.innerHTML = "";
-
-      FLAVOURS.forEach(f => {
-        const isAvail = availability[f.name] !== false;
-
-        const card = document.createElement("div");
-        card.className = `relative rounded-3xl border overflow-hidden hover:shadow-md transition bg-white ${isAvail ? "" : "card-dim"}`;
-        card.setAttribute("data-flavour-card", f.name);
-
-        card.innerHTML = `
-          <div class="soldout-badge ${isAvail ? "hidden" : ""}">SOLD OUT</div>
-
-          <div class="aspect-[4/5] overflow-hidden bg-white grid place-items-center">
-            <img src="${f.img}" alt="${f.name}" class="w-full h-full object-contain"/>
-          </div>
-
-          <div class="p-4 flex flex-col h-full">
-            <div class="flex items-center justify-between gap-2">
-              <h3 class="font-bold text-lg">${f.name}</h3>
-              <span class="inline-flex items-center rounded-full border px-2 py-1 text-xs font-medium">Halal</span>
-            </div>
-            <p class="mt-1 text-sm font-semibold text-emerald-700">RM1.00 / batang</p>
-            <p class="mt-1 text-sm opacity-80 flex-1">${f.desc}</p>
-
-            <!-- Qty selector + Add -->
-            <div class="mt-3 flex items-center justify-between gap-2">
-              <div class="qty-stepper inline-flex items-center gap-1 border rounded-2xl px-2 py-1">
-                <button class="rounded-xl border bg-white hover:bg-gray-50"
-                  data-sel-minus="${f.name}" aria-label="Kurang kuantiti ${f.name}">-</button>
-                <span class="text-sm font-extrabold" data-sel-value="${f.name}">${selectionQty[f.name] || 1}</span>
-                <button class="rounded-xl border bg-white hover:bg-gray-50"
-                  data-sel-plus="${f.name}" aria-label="Tambah kuantiti ${f.name}">+</button>
-              </div>
-
-              <button
-                class="rounded-2xl px-4 py-2 text-sm font-extrabold border hover:shadow bg-amber-400 border-amber-500"
-                data-add-flavour="${f.name}"
-                ${isAvail ? "" : "disabled"}
-              >
-                Tambah
-              </button>
-            </div>
-          </div>
-        `;
-
-        grid.appendChild(card);
-      });
-
-      applyAvailabilityToUI();
-    }
-
-    function bindFlavourCardEvents() {
-      const grid = document.getElementById("flavourGrid");
-      if (!grid) return;
-
-      grid.addEventListener("click", (e) => {
-        const t = e.target;
-
-        // minus
-        if (t && t.getAttribute && t.getAttribute("data-sel-minus")) {
-          const name = t.getAttribute("data-sel-minus");
-          const cur = selectionQty[name] || 1;
-          selectionQty[name] = Math.max(1, cur - 1);
-          const valEl = document.querySelector(`[data-sel-value="${cssEscape(name)}"]`);
-          if (valEl) valEl.textContent = selectionQty[name];
-        }
-
-        // plus
-        if (t && t.getAttribute && t.getAttribute("data-sel-plus")) {
-          const name = t.getAttribute("data-sel-plus");
-          const cur = selectionQty[name] || 1;
-          selectionQty[name] = Math.min(999, cur + 1);
-          const valEl = document.querySelector(`[data-sel-value="${cssEscape(name)}"]`);
-          if (valEl) valEl.textContent = selectionQty[name];
-        }
-
-        // add
-        if (t && t.getAttribute && t.getAttribute("data-add-flavour")) {
-          const name = t.getAttribute("data-add-flavour");
-          if (availability[name] === false) return; // sold out
-          const qty = selectionQty[name] || 1;
-          addToCart(name, 1, qty);
-          if (AUTO_OPEN_CART_MODE === "always") {
-            openCart({ focusSend: true });
-          }
-        }
-      });
-    }
-
-    // =========================
-    // Cart Logic
-    // =========================
-    function addToCart(name, sticksPerUnit = 1, unitsToAdd = 1) {
-      if (!name) return;
-      if (!cart[name]) cart[name] = { units: 0, sticksPerUnit };
-      cart[name].sticksPerUnit = sticksPerUnit;
-      cart[name].units += Math.max(1, unitsToAdd);
-      renderCartItems();
-      updateCountsUI();
-    }
-
-    function clearCart() {
-      Object.keys(cart).forEach(key => { cart[key].units = 0; });
-      Object.keys(cart).forEach(key => {
-        const isFlavour = FLAVOURS.some(f => f.name === key);
-        if (!isFlavour) delete cart[key];
-      });
-      renderCartItems();
-      updateCountsUI();
     }
 
     function renderCartItems() {
@@ -921,15 +1202,17 @@
       if (!tbody) return;
       tbody.innerHTML = '';
 
-      const flavourNames = FLAVOURS.map(f => f.name);
-
       const renderRow = (name, item, isFlavour) => {
         const totalSticks = item.units * item.sticksPerUnit;
         const totalPrice = totalSticks * PRICE_PER_STICK;
+        const soldOut = isFlavour && isSoldOut(name);
+
+        // if sold out and already in cart, keep quantity but show note
+        const soldTag = soldOut ? `<span class="ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold bg-red-600 text-white">SOLD OUT</span>` : '';
 
         const removeHtml = isFlavour
           ? ''
-          : `<button class="text-xs text-red-600 remove-item-btn" data-name="${name}">Buang</button>`;
+          : `<button type="button" class="text-xs text-red-600 remove-item-btn" data-name="${name}">Buang</button>`;
 
         const infoLine = item.units > 0
           ? `${item.units}x unit ≈ ${totalSticks} batang @ RM1.00`
@@ -938,369 +1221,640 @@
         const totalLine = totalSticks > 0 ? `RM${totalPrice.toFixed(2)}` : `RM0.00`;
         const priceDetail = totalSticks > 0 ? `RM1.00 × ${totalSticks} batang` : `Tiada batang dipesan`;
 
+        const disableMinus = item.units <= 0 ? 'disabled' : '';
+        const disabledClass = soldOut ? 'opacity-60' : '';
+
         const row = document.createElement('tr');
         row.className = 'border-b last:border-0';
         row.innerHTML = `
-          <td class="py-2 pr-2 align-top">
-            <span class="font-semibold">${name}</span>
+          <td class="py-2 pr-2 align-top ${disabledClass}">
+            <span class="font-semibold">${safeText(name)}${soldTag}</span>
             <div class="text-xs opacity-70 mt-1">${infoLine}</div>
           </td>
-          <td class="py-2 px-2 text-center align-top">
+          <td class="py-2 px-2 text-center align-top ${disabledClass}">
             <div class="inline-flex items-center gap-1 border rounded-full px-2 py-1">
-              <button class="px-2 text-sm qty-btn" data-name="${name}" data-action="minus" aria-label="Kurang ${name}">-</button>
+              <button type="button" class="px-2 text-sm qty-btn" data-name="${safeText(name)}" data-action="minus" ${disableMinus}>-</button>
               <span class="px-2 text-sm">${item.units}</span>
-              <button class="px-2 text-sm qty-btn" data-name="${name}" data-action="plus" aria-label="Tambah ${name}">+</button>
+              <button type="button" class="px-2 text-sm qty-btn" data-name="${safeText(name)}" data-action="plus">+</button>
             </div>
           </td>
-          <td class="py-2 pl-2 text-right align-top">
+          <td class="py-2 pl-2 text-right align-top ${disabledClass}">
             <div>${totalLine}</div>
             <div class="text-[11px] opacity-60">${priceDetail}</div>
           </td>
-          <td class="py-2 pl-2 text-right align-top">
+          <td class="py-2 pl-2 text-right align-top ${disabledClass}">
             ${removeHtml}
           </td>
         `;
         tbody.appendChild(row);
       };
 
-      // flavours first
-      flavourNames.forEach(name => {
+      // Render flavours first
+      FLAVOURS.forEach(name => {
         const item = cart[name] || { units: 0, sticksPerUnit: 1 };
         cart[name] = item;
         renderRow(name, item, true);
       });
 
-      // packages etc
+      // Render packages
       Object.entries(cart).forEach(([name, item]) => {
-        if (flavourNames.includes(name)) return;
+        if (FLAVOURS.includes(name)) return;
         renderRow(name, item, false);
       });
 
-      updateCountsUI();
+      updateCartCounts();
     }
 
-    // =========================
-    // WhatsApp Message
-    // =========================
-    function buildWhatsAppOrderMessage() {
-      const { totalSticks, totalPrice } = getCartSummary();
-
-      if (totalSticks === 0) return msgGeneral;
-
-      const name = (document.getElementById("orderName")?.value || "").trim();
-      const dateTime = (document.getElementById("orderDateTime")?.value || "").trim();
-      const location = (document.getElementById("orderLocation")?.value || "").trim();
-      const notes = (document.getElementById("orderNotes")?.value || "").trim();
-      const mode = document.getElementById("modePickup")?.checked ? "Pickup" : "Delivery";
-
-      let lines = [];
-      lines.push('Hai, saya nak buat tempahan CREMA aiskrim Malaysia. Berikut butiran pesanan saya:');
-      lines.push('');
-      lines.push(`Nama: ${name}`);
-      lines.push(`Kaedah: ${mode}`);
-      if (dateTime) lines.push(`Tarikh & masa: ${dateTime}`);
-      if (location) lines.push(`Lokasi: ${location}`);
-      if (notes) lines.push(`Catatan: ${notes}`);
-
-      lines.push('');
-      lines.push('Perincian Pesanan (harga setiap jenis RM1.00/batang):');
-
-      Object.entries(cart).forEach(([itemName, item]) => {
-        const totalItemSticks = item.units * item.sticksPerUnit;
-        if (totalItemSticks <= 0) return;
-        const itemPrice = totalItemSticks * PRICE_PER_STICK;
-        lines.push(
-          `• ${itemName} — ${item.units}x unit (± ${totalItemSticks} batang, RM1.00 x ${totalItemSticks} = RM${itemPrice.toFixed(2)})`
-        );
-      });
-
-      lines.push('');
-      lines.push(`Jumlah batang: ${totalSticks}`);
-      lines.push(`Jumlah anggaran harga: RM${totalPrice.toFixed(2)} (RM1.00 x ${totalSticks})`);
-
-      return lines.join('\n');
+    function clearCart() {
+      Object.keys(cart).forEach(key => { cart[key].units = 0; });
+      Object.keys(cart).forEach(key => { if (!FLAVOURS.includes(key)) delete cart[key]; });
+      renderCartItems();
     }
 
-    function persistName() {
-      const el = document.getElementById("orderName");
-      if (!el) return;
-      localStorage.setItem("cremaOrderName", el.value || "");
+    function maybeOpenCart() {
+      if (AUTO_OPEN_CART_MODE === "always") openCart();
+      else openCart();
     }
 
-    function loadPersistedName() {
-      const el = document.getElementById("orderName");
-      if (!el) return;
-      const saved = localStorage.getItem("cremaOrderName") || "";
-      if (saved && !el.value) el.value = saved;
+    // ================= VISITOR WIDGET =================
+    function hideVisitorWidget() {
+      if (!isMobile()) return;
+      const widget = document.getElementById('visitorWidget');
+      if (!widget) return;
+      widget.classList.add('opacity-0', 'translate-y-2', 'pointer-events-none');
+      widget.classList.remove('opacity-100', 'translate-y-0');
     }
 
-    // =========================
-    // Modal: open/close + focus trap + ESC
-    // =========================
-    let lastFocusedEl = null;
+    function showVisitorWidget() {
+      if (!isMobile()) return;
+      __showVisitorOnNextScroll = true;
+    }
+
+    function showVisitorWidgetNow() {
+      if (!isMobile()) return;
+      if (__cartIsOpen) return;
+      const widget = document.getElementById('visitorWidget');
+      if (!widget) return;
+      widget.classList.remove('opacity-0', 'translate-y-2', 'pointer-events-none');
+      widget.classList.add('opacity-100', 'translate-y-0');
+    }
+
+    // ================= FOCUS TRAP (CART) =================
+    let __cartTrapHandler = null;
+    let __cartLastFocusedEl = null;
+
     function getFocusableElements(container) {
       if (!container) return [];
-      return Array.from(container.querySelectorAll(
-        'a[href], button:not([disabled]), textarea, input, select, details, summary, [tabindex]:not([tabindex="-1"])'
-      )).filter(el => !el.hasAttribute("disabled") && !el.getAttribute("aria-hidden"));
+      const selectors = [
+        'a[href]',
+        'button:not([disabled])',
+        'textarea:not([disabled])',
+        'input:not([disabled])',
+        'select:not([disabled])',
+        '[tabindex]:not([tabindex="-1"])'
+      ];
+      return Array.from(container.querySelectorAll(selectors.join(',')))
+        .filter(el => el.offsetParent !== null);
     }
 
-    function openCart({ focusSend = false } = {}) {
+    function activateCartFocusTrap() {
       const modal = document.getElementById('cartModal');
       const panel = document.getElementById('cartPanel');
       if (!modal || !panel) return;
 
-      lastFocusedEl = document.activeElement;
+      __cartLastFocusedEl = document.activeElement;
+      if (!panel.hasAttribute('tabindex')) panel.setAttribute('tabindex', '-1');
 
-      modal.classList.remove('modal-hidden');
-      modal.classList.add('modal-open');
-      modal.setAttribute("aria-hidden", "false");
+      const handler = (e) => {
+        if (e.key !== 'Tab') return;
+        if (modal.classList.contains('hidden')) return;
 
-      // animate
+        const focusables = getFocusableElements(panel);
+        if (focusables.length === 0) {
+          e.preventDefault();
+          panel.focus();
+          return;
+        }
+
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        const active = document.activeElement;
+
+        if (e.shiftKey) {
+          if (active === first || active === panel) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (active === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
+      };
+
+      __cartTrapHandler = handler;
+      document.addEventListener('keydown', handler);
+    }
+
+    function deactivateCartFocusTrap() {
+      if (__cartTrapHandler) {
+        document.removeEventListener('keydown', __cartTrapHandler);
+        __cartTrapHandler = null;
+      }
+      if (__cartLastFocusedEl && typeof __cartLastFocusedEl.focus === 'function') {
+        try { __cartLastFocusedEl.focus(); } catch (e) {}
+      }
+      __cartLastFocusedEl = null;
+    }
+
+    // ================= CART OPEN/CLOSE =================
+    let __cartNextFocusId = null;
+
+    function openCartWithFocus(focusId) {
+      __cartNextFocusId = focusId || null;
+      openCart();
+    }
+
+    function openCart() {
+      const modal = document.getElementById('cartModal');
+      const panel = document.getElementById('cartPanel');
+      if (modal) modal.classList.remove('hidden');
+
+      __cartIsOpen = true;
+
       requestAnimationFrame(() => {
-        panel.classList.add("show");
+        if (panel) {
+          panel.classList.add('cart-panel-enter');
+          panel.classList.remove('cart-panel-leave');
+        }
       });
 
+      hideVisitorWidget();
       renderCartItems();
-      loadPersistedName();
+      activateCartFocusTrap();
 
-      // focus target
       setTimeout(() => {
-        if (focusSend) {
-          const btn = document.getElementById("sendOrderBtn");
-          if (btn) btn.focus();
-        } else {
-          const btn = document.getElementById("cartCloseX");
-          if (btn) btn.focus();
-        }
-      }, 60);
-
-      document.body.style.overflow = "hidden";
+        const targetId = __cartNextFocusId || 'cartCheckoutBtn';
+        const targetEl = document.getElementById(targetId);
+        if (targetEl) targetEl.focus();
+        __cartNextFocusId = null;
+      }, 0);
     }
 
     function closeCart() {
       const modal = document.getElementById('cartModal');
       const panel = document.getElementById('cartPanel');
-      if (!modal || !panel) return;
 
-      panel.classList.remove("show");
+      __cartIsOpen = false;
+
+      if (panel) {
+        panel.classList.remove('cart-panel-enter');
+        panel.classList.add('cart-panel-leave');
+      }
+
+      deactivateCartFocusTrap();
+
       setTimeout(() => {
-        modal.classList.add('modal-hidden');
-        modal.classList.remove('modal-open');
-        modal.setAttribute("aria-hidden", "true");
-        document.body.style.overflow = "";
-        if (lastFocusedEl && lastFocusedEl.focus) lastFocusedEl.focus();
-      }, 180);
+        if (modal) modal.classList.add('hidden');
+      }, 200);
+
+      showVisitorWidget();
+    }
+
+    // ================= ORDER FORM =================
+    function getSelectedOrderMethod() {
+      const selected = document.querySelector('input[name="orderMethod"]:checked');
+      return selected ? selected.value : 'Pickup';
+    }
+
+    function validateOrderForm() {
+      const nameEl = document.getElementById('orderName');
+      const name = nameEl ? nameEl.value.trim() : '';
+      if (!name) {
+        alert('Sila isi Nama sebelum hantar pesanan.');
+        if (nameEl) nameEl.focus();
+        return false;
+      }
+      return true;
+    }
+
+    function saveOrderNameToLocalStorage() {
+      const nameEl = document.getElementById('orderName');
+      const name = nameEl ? nameEl.value.trim() : '';
+      try { if (name) localStorage.setItem(LS_NAME_KEY, name); } catch (e) {}
+    }
+
+    function loadOrderNameFromLocalStorage() {
+      const nameEl = document.getElementById('orderName');
+      if (!nameEl) return;
+      try {
+        const stored = localStorage.getItem(LS_NAME_KEY);
+        if (stored && !nameEl.value) nameEl.value = stored;
+      } catch (e) {}
+    }
+
+    function buildWhatsAppOrderMessage() {
+      const { totalSticks, totalPrice } = getCartSummary();
+      if (totalSticks === 0) return msgGeneral;
+
+      const name = document.getElementById('orderName')?.value?.trim() || '-';
+      const date = document.getElementById('orderDate')?.value || '-';
+      const location = document.getElementById('orderLocation')?.value?.trim() || '-';
+      const method = getSelectedOrderMethod();
+
+      let lines = [];
+      lines.push('Hai, saya nak buat tempahan CREMA aiskrim Malaysia. Berikut butiran pesanan saya:');
+      lines.push('');
+      lines.push('Perincian Pesanan (RM1.00/batang):');
+
+      Object.entries(cart).forEach(([itemName, item]) => {
+        const totalItemSticks = item.units * item.sticksPerUnit;
+        if (totalItemSticks <= 0) return;
+        const itemPrice = totalItemSticks * PRICE_PER_STICK;
+        lines.push(`• ${itemName} — ${item.units}x unit (± ${totalItemSticks} batang) = RM${itemPrice.toFixed(2)}`);
+      });
+
+      lines.push('');
+      lines.push(`Jumlah batang: ${totalSticks}`);
+      lines.push(`Jumlah anggaran harga: RM${totalPrice.toFixed(2)} (RM1.00 x ${totalSticks})`);
+      lines.push('');
+      lines.push('Maklumat Pelanggan:');
+      lines.push(`- Nama: ${name}`);
+      lines.push(`- Kaedah: ${method}`);
+      lines.push(`- Tarikh & Masa: ${date}`);
+      lines.push(`- Lokasi: ${location}`);
+      return lines.join('\n');
+    }
+
+    // ================= VISITOR COUNTER + DATETIME =================
+    function initVisitorCounter() {
+      const key = 'cremaVisitorCount';
+      let count = 0;
+      try {
+        const stored = localStorage.getItem(key);
+        if (stored !== null) count = parseInt(stored, 10) || 0;
+        count += 1;
+        localStorage.setItem(key, String(count));
+      } catch (e) {
+        count = 1;
+      }
+      const el = document.getElementById('visitorCounter');
+      if (el) el.textContent = count;
+    }
+
+    function initDateTimeWidget() {
+      const el = document.getElementById('dateTimeDisplay');
+      function update() {
+        const now = new Date();
+        const formatted = now.toLocaleString('ms-MY', { dateStyle: 'short', timeStyle: 'medium' });
+        if (el) el.textContent = formatted;
+      }
+      update();
+      setInterval(update, 1000);
+    }
+
+    // ================= AVAILABILITY (PUBLIC) =================
+    async function fetchAvailability() {
+      try {
+        const res = await fetch(API.getAvailability, { cache: 'no-store' });
+        const data = await res.json();
+        if (!data || data.ok !== true) {
+          setAvailabilityStatusText('Gagal semak stok (server).', true);
+          return;
+        }
+        const next = data.availability || {};
+        const nextHash = hashAvailability(next);
+
+        availability = next;
+
+        // Update UI
+        applyAvailabilityToCards();
+        // Update admin list if open/logged
+        refreshAdminListUI();
+
+        const changed = nextHash !== lastAvailabilityHash;
+        lastAvailabilityHash = nextHash;
+
+        const t = new Date();
+        setAvailabilityStatusText(`Stok dikemas kini: ${t.toLocaleTimeString('ms-MY')}`, false);
+
+        // If changed, refresh cart UI
+        if (changed) renderCartItems();
+      } catch (e) {
+        setAvailabilityStatusText('Gagal semak stok (network).', true);
+      }
+    }
+
+    function applyAvailabilityToCards() {
+      document.querySelectorAll('[data-flavour]').forEach(card => {
+        const name = card.getAttribute('data-flavour');
+        const sold = isSoldOut(name);
+
+        const badge = card.querySelector('.soldout-badge');
+        const addBtn = card.querySelector('.add-to-cart');
+        const stepBtns = card.querySelectorAll('.flavour-qty-btn');
+        const qtyInput = card.querySelector('.flavour-qty-input');
+
+        if (badge) badge.classList.toggle('hidden', !sold);
+
+        // disable add & stepper if sold out
+        if (addBtn) {
+          addBtn.disabled = sold;
+          addBtn.classList.toggle('opacity-50', sold);
+          addBtn.classList.toggle('cursor-not-allowed', sold);
+          addBtn.textContent = sold ? 'Sold Out' : 'Tambah ke Troli';
+        }
+
+        stepBtns.forEach(b => {
+          b.disabled = sold;
+          b.classList.toggle('opacity-50', sold);
+          b.classList.toggle('cursor-not-allowed', sold);
+        });
+
+        if (qtyInput) {
+          qtyInput.disabled = sold;
+          qtyInput.classList.toggle('opacity-50', sold);
+        }
+
+        // subtle card styling
+        card.classList.toggle('opacity-80', sold);
+      });
+    }
+
+    // ================= ADMIN UI =================
+    let __adminTrapHandler = null;
+    let __adminLastFocusedEl = null;
+    let __adminDraft = {}; // working copy of availability
+
+    function getAdminToken() {
+      try { return sessionStorage.getItem(ADMIN_TOKEN_KEY) || ''; } catch(e){ return ''; }
+    }
+    function setAdminToken(token) {
+      try {
+        if (token) sessionStorage.setItem(ADMIN_TOKEN_KEY, token);
+        else sessionStorage.removeItem(ADMIN_TOKEN_KEY);
+      } catch(e){}
     }
 
     function openAdmin() {
-      const modal = document.getElementById("adminModal");
-      const panel = document.getElementById("adminPanel");
-      if (!modal || !panel) return;
+      const modal = document.getElementById('adminModal');
+      const panel = document.getElementById('adminPanel');
+      if (modal) modal.classList.remove('hidden');
 
-      lastFocusedEl = document.activeElement;
-
-      modal.classList.remove("modal-hidden");
-      modal.classList.add("modal-open");
-      modal.setAttribute("aria-hidden", "false");
-
-      requestAnimationFrame(() => panel.classList.add("show"));
-
-      document.body.style.overflow = "hidden";
-
-      setTimeout(() => {
-        const token = getAdminToken();
-        if (token) {
-          // already logged in
-          showAdminControls(true);
-          renderAdminList();
-          const saveBtn = document.getElementById("adminSaveBtn");
-          if (saveBtn) saveBtn.focus();
-        } else {
-          const pw = document.getElementById("adminPassword");
-          if (pw) pw.focus();
+      requestAnimationFrame(() => {
+        if (panel) {
+          panel.classList.add('admin-panel-enter');
+          panel.classList.remove('admin-panel-leave');
         }
-      }, 60);
+      });
+
+      activateAdminFocusTrap();
+
+      // view logic
+      const token = getAdminToken();
+      if (token) {
+        showAdminManageView();
+      } else {
+        showAdminLoginView();
+      }
     }
 
     function closeAdmin() {
-      const modal = document.getElementById("adminModal");
-      const panel = document.getElementById("adminPanel");
-      if (!modal || !panel) return;
+      const modal = document.getElementById('adminModal');
+      const panel = document.getElementById('adminPanel');
 
-      panel.classList.remove("show");
+      if (panel) {
+        panel.classList.remove('admin-panel-enter');
+        panel.classList.add('admin-panel-leave');
+      }
+
+      deactivateAdminFocusTrap();
+
       setTimeout(() => {
-        modal.classList.add("modal-hidden");
-        modal.classList.remove("modal-open");
-        modal.setAttribute("aria-hidden", "true");
-        document.body.style.overflow = "";
-        isAdminEditing = false;
-        if (lastFocusedEl && lastFocusedEl.focus) lastFocusedEl.focus();
-      }, 180);
+        if (modal) modal.classList.add('hidden');
+      }, 200);
     }
 
-    // Focus trap (cart + admin)
-    function handleTrap(e, modalId, panelId) {
-      if (e.key !== "Tab") return;
-      const modal = document.getElementById(modalId);
-      const panel = document.getElementById(panelId);
+    function activateAdminFocusTrap() {
+      const modal = document.getElementById('adminModal');
+      const panel = document.getElementById('adminPanel');
       if (!modal || !panel) return;
-      if (modal.classList.contains("modal-hidden")) return;
 
-      const focusables = getFocusableElements(panel);
-      if (focusables.length === 0) return;
+      __adminLastFocusedEl = document.activeElement;
+      if (!panel.hasAttribute('tabindex')) panel.setAttribute('tabindex', '-1');
 
-      const first = focusables[0];
-      const last = focusables[focusables.length - 1];
+      const handler = (e) => {
+        if (e.key !== 'Tab') return;
+        if (modal.classList.contains('hidden')) return;
 
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault();
-        first.focus();
-      }
+        const focusables = getFocusableElements(panel);
+        if (focusables.length === 0) {
+          e.preventDefault();
+          panel.focus();
+          return;
+        }
+
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        const active = document.activeElement;
+
+        if (e.shiftKey) {
+          if (active === first || active === panel) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (active === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
+      };
+
+      __adminTrapHandler = handler;
+      document.addEventListener('keydown', handler);
     }
 
-    // =========================
-    // Admin functions
-    // =========================
-    function showAdminControls(isLoggedIn) {
-      const loginBox = document.getElementById("adminLoginBox");
-      const controlBox = document.getElementById("adminControlBox");
-      if (!loginBox || !controlBox) return;
-
-      if (isLoggedIn) {
-        loginBox.classList.add("hidden");
-        controlBox.classList.remove("hidden");
-      } else {
-        loginBox.classList.remove("hidden");
-        controlBox.classList.add("hidden");
+    function deactivateAdminFocusTrap() {
+      if (__adminTrapHandler) {
+        document.removeEventListener('keydown', __adminTrapHandler);
+        __adminTrapHandler = null;
       }
+      if (__adminLastFocusedEl && typeof __adminLastFocusedEl.focus === 'function') {
+        try { __adminLastFocusedEl.focus(); } catch (e) {}
+      }
+      __adminLastFocusedEl = null;
+    }
+
+    function showAdminLoginView() {
+      document.getElementById('adminLoginView')?.classList.remove('hidden');
+      document.getElementById('adminManageView')?.classList.add('hidden');
+
+      const msg = document.getElementById('adminLoginMsg');
+      if (msg) msg.classList.add('hidden');
+      setTimeout(() => document.getElementById('adminPassword')?.focus(), 0);
+    }
+
+    function showAdminManageView() {
+      document.getElementById('adminLoginView')?.classList.add('hidden');
+      document.getElementById('adminManageView')?.classList.remove('hidden');
+
+      // draft starts from current availability (default true)
+      __adminDraft = {};
+      FLAVOURS.forEach(f => {
+        __adminDraft[f] = !isSoldOut(f);
+      });
+
+      renderAdminList();
+      setTimeout(() => document.getElementById('adminSaveBtn')?.focus(), 0);
     }
 
     function renderAdminList() {
-      const wrap = document.getElementById("adminFlavourList");
-      if (!wrap) return;
-      wrap.innerHTML = "";
-      isAdminEditing = true;
+      const list = document.getElementById('adminList');
+      if (!list) return;
+      list.innerHTML = '';
 
-      FLAVOURS.forEach(f => {
-        const isAvail = availability[f.name] !== false;
-        const card = document.createElement("div");
-        card.className = "rounded-2xl border p-3 flex items-center justify-between gap-3";
-        card.innerHTML = `
-          <div>
-            <div class="font-extrabold text-sm">${f.name}</div>
-            <div class="text-xs opacity-70">${isAvail ? "Available" : "Sold Out"}</div>
+      FLAVOURS.forEach(name => {
+        const isAvail = (__adminDraft[name] !== false); // true default
+        const row = document.createElement('div');
+        row.className = 'flex items-center justify-between gap-2 rounded-2xl border px-4 py-3';
+        row.innerHTML = `
+          <div class="text-sm">
+            <div class="font-semibold">${safeText(name)}</div>
+            <div class="text-xs ${isAvail ? 'text-emerald-700' : 'text-red-600'} font-semibold">
+              ${isAvail ? 'AVAILABLE' : 'SOLD OUT'}
+            </div>
           </div>
-
-          <label class="inline-flex items-center gap-2 cursor-pointer select-none">
-            <span class="text-xs font-semibold ${isAvail ? "text-emerald-700" : "text-red-600"}">${isAvail ? "ON" : "OFF"}</span>
-            <input type="checkbox" class="h-5 w-5" data-admin-toggle="${f.name}" ${isAvail ? "checked" : ""}>
-          </label>
+          <button type="button"
+                  class="admin-toggle-btn rounded-2xl px-4 py-2 text-sm font-bold ${isAvail ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'bg-red-600 text-white hover:bg-red-700'}"
+                  data-name="${safeText(name)}">
+            ${isAvail ? 'Set SOLD OUT' : 'Set AVAILABLE'}
+          </button>
         `;
-        wrap.appendChild(card);
+        list.appendChild(row);
       });
+
+      // bind events
+      list.querySelectorAll('.admin-toggle-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const name = btn.getAttribute('data-name');
+          if (!name) return;
+          const currentAvail = (__adminDraft[name] !== false);
+          __adminDraft[name] = !currentAvail;
+          renderAdminList();
+        });
+      });
+    }
+
+    function refreshAdminListUI() {
+      // if manage view open, do nothing to draft unless user wants "sync"
+      // (keeping simple: draft is local while editing)
     }
 
     async function adminLogin() {
-      const msg = document.getElementById("adminLoginMsg");
-      if (msg) msg.textContent = "";
+      const pass = document.getElementById('adminPassword')?.value || '';
+      const msg = document.getElementById('adminLoginMsg');
+      if (msg) msg.classList.add('hidden');
 
-      const pw = (document.getElementById("adminPassword")?.value || "").trim();
-      if (!pw) {
-        if (msg) msg.textContent = "Sila masukkan password.";
-        if (msg) msg.className = "text-sm mt-2 text-red-600";
+      if (!pass.trim()) {
+        if (msg) {
+          msg.textContent = 'Sila masukkan password.';
+          msg.classList.remove('hidden');
+        }
         return;
       }
 
       try {
-        const res = await fetch(ADMIN_LOGIN_API, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ password: pw })
+        const res = await fetch(API.adminLogin, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: pass })
         });
         const data = await res.json();
-        if (data && data.ok && data.token) {
-          setAdminToken(data.token);
+        if (!data || data.ok !== true || !data.token) {
           if (msg) {
-            msg.textContent = "Login berjaya.";
-            msg.className = "text-sm mt-2 text-emerald-700";
+            msg.textContent = data?.error || 'Login gagal.';
+            msg.classList.remove('hidden');
           }
-          showAdminControls(true);
-          renderAdminList();
-        } else {
-          if (msg) {
-            msg.textContent = "Password salah / gagal login.";
-            msg.className = "text-sm mt-2 text-red-600";
-          }
+          return;
         }
-      } catch {
+
+        setAdminToken(data.token);
+        showAdminManageView();
+      } catch (e) {
         if (msg) {
-          msg.textContent = "Gagal connect. Cuba lagi.";
-          msg.className = "text-sm mt-2 text-red-600";
+          msg.textContent = 'Login gagal (network).';
+          msg.classList.remove('hidden');
         }
       }
     }
 
-    async function adminSaveAvailability() {
-      const msg = document.getElementById("adminSaveMsg");
-      if (msg) msg.textContent = "";
+    function adminLogout() {
+      setAdminToken('');
+      showAdminLoginView();
+    }
 
+    async function adminSave() {
       const token = getAdminToken();
-      if (!token) {
-        if (msg) {
-          msg.textContent = "Token admin tiada. Sila login semula.";
-          msg.className = "text-sm mt-3 text-red-600";
-        }
-        showAdminControls(false);
-        return;
+      const msg = document.getElementById('adminSaveMsg');
+      if (msg) {
+        msg.classList.remove('hidden');
+        msg.classList.remove('text-red-600', 'text-emerald-700');
+        msg.textContent = 'Menyimpan...';
+        msg.classList.add('opacity-80');
       }
 
-      // build availability from toggles
-      const next = {};
+      // Convert draft (available true/false) => store availability (true/false)
+      const payloadAvailability = {};
       FLAVOURS.forEach(f => {
-        const cb = document.querySelector(`[data-admin-toggle="${cssEscape(f.name)}"]`);
-        next[f.name] = cb ? !!cb.checked : (availability[f.name] !== false);
+        payloadAvailability[f] = (__adminDraft[f] !== false); // true if available
       });
 
       try {
-        const res = await fetch(ADMIN_SAVE_API, {
-          method: "POST",
+        const res = await fetch(API.adminUpdate, {
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + token
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
           },
-          body: JSON.stringify({ availability: next })
+          body: JSON.stringify({ availability: payloadAvailability })
         });
         const data = await res.json();
-        if (data && data.ok) {
-          availability = next;
-          applyAvailabilityToUI();
-          renderFlavourCards(); // refresh labels + disabled
+
+        if (!data || data.ok !== true) {
           if (msg) {
-            msg.textContent = "Disimpan. Sold Out/Available kini GLOBAL untuk semua pelawat.";
-            msg.className = "text-sm mt-3 text-emerald-700";
+            msg.textContent = data?.error || 'Gagal simpan.';
+            msg.classList.remove('opacity-80');
+            msg.classList.add('text-red-600');
           }
-        } else {
-          if (msg) {
-            msg.textContent = "Gagal simpan. Cuba login semula.";
-            msg.className = "text-sm mt-3 text-red-600";
+          // If unauthorized -> force logout
+          if (data?.error && data.error.toLowerCase().includes('unauthorized')) {
+            setAdminToken('');
+            showAdminLoginView();
           }
+          return;
         }
-      } catch {
+
         if (msg) {
-          msg.textContent = "Gagal simpan (network).";
-          msg.className = "text-sm mt-3 text-red-600";
+          msg.textContent = 'Berjaya simpan! Semua pelawat akan nampak perubahan.';
+          msg.classList.remove('opacity-80');
+          msg.classList.add('text-emerald-700');
+        }
+
+        // Refresh public availability immediately
+        await fetchAvailability();
+      } catch (e) {
+        if (msg) {
+          msg.textContent = 'Gagal simpan (network).';
+          msg.classList.remove('opacity-80');
+          msg.classList.add('text-red-600');
         }
       }
     }
 
-    // =========================
-    // DOMContentLoaded
-    // =========================
-    document.addEventListener('DOMContentLoaded', async () => {
+    // ================= DOM READY =================
+    document.addEventListener('DOMContentLoaded', () => {
       // WhatsApp links
       const setHref = (id, text) => {
         const el = document.getElementById(id);
@@ -1309,18 +1863,18 @@
       setHref('waTop', msgGeneral);
       setHref('waTopMobile', msgGeneral);
       setHref('waCTA1', msgGeneral);
-      setHref('waHarga1', msg15);
-      setHref('waHarga2', msg30);
-      setHref('waHarga3', msg50);
-      setHref('waHarga4', msgPakej);
+      setHref('waHarga1', msgP15);
+      setHref('waHarga2', msgP30);
+      setHref('waHarga3', msgP50);
+      setHref('waHarga4', msgP100);
       setHref('waHubungi', msgGeneral);
       setHref('waFooter', msgGeneral);
 
-      // year
+      // Year
       const y = document.getElementById('year');
       if (y) y.textContent = new Date().getFullYear();
 
-      // mobile menu
+      // Mobile menu
       const menuBtn = document.getElementById('menuBtn');
       const menuPanel = document.getElementById('menuPanel');
       if (menuBtn && menuPanel) {
@@ -1330,217 +1884,182 @@
         });
       }
 
-      // init
-      initCartBase();
+      // Init cart
+      initFlavourCart();
+      renderCartItems();
 
-      // load availability remote then render
-      const remote = await loadAvailabilityRemote();
-      availability = remote || loadAvailabilityFallback();
-      renderFlavourCards();
-      bindFlavourCardEvents();
+      // Load name
+      loadOrderNameFromLocalStorage();
+      const orderNameEl = document.getElementById('orderName');
+      if (orderNameEl) orderNameEl.addEventListener('input', saveOrderNameToLocalStorage);
 
-      // auto refresh availability
-      setInterval(async () => {
-        if (isAdminEditing) return;
-        const r = await loadAvailabilityRemote();
-        if (r) {
-          availability = r;
-          applyAvailabilityToUI();
-          renderFlavourCards();
-        }
-      }, AVAIL_REFRESH_MS);
+      // Stepper handlers
+      document.querySelectorAll('.flavour-qty-btn').forEach(stepBtn => {
+        stepBtn.addEventListener('click', () => {
+          const action = stepBtn.getAttribute('data-action');
+          const card = stepBtn.closest('[data-flavour]');
+          const input = card ? card.querySelector('.flavour-qty-input') : null;
+          if (!input) return;
 
-      // Cart open buttons
-      const cartBtn = document.getElementById('cartBtn');
-      const cartBtnMobile = document.getElementById('cartBtnMobile');
-      const cartBtnCTA = document.getElementById('cartBtnCTA');
-      if (cartBtn) cartBtn.addEventListener('click', () => openCart({ focusSend: false }));
-      if (cartBtnMobile) cartBtnMobile.addEventListener('click', () => openCart({ focusSend: false }));
-      if (cartBtnCTA) cartBtnCTA.addEventListener('click', () => openCart({ focusSend: false }));
-
-      // Semak pesanan (after perisa)
-      const reviewBtn = document.getElementById("reviewOrderBtn");
-      if (reviewBtn) {
-        reviewBtn.addEventListener("click", () => {
-          openCart({ focusSend: true });
+          const current = Math.max(1, parseInt(input.value, 10) || 1);
+          if (action === 'plus') input.value = String(current + 1);
+          if (action === 'minus') input.value = String(Math.max(1, current - 1));
         });
-      }
+      });
 
-      // Close cart
-      const cartCloseBtn = document.getElementById('cartCloseBtn');
-      const cartCloseX = document.getElementById('cartCloseX');
-      const cartModal = document.getElementById('cartModal');
-      if (cartCloseBtn) cartCloseBtn.addEventListener('click', closeCart);
-      if (cartCloseX) cartCloseX.addEventListener('click', closeCart);
-
-      // click backdrop closes
-      if (cartModal) {
-        cartModal.addEventListener('click', (e) => {
-          // only backdrop (not panel)
-          if (e.target === cartModal) closeCart();
+      document.querySelectorAll('.flavour-qty-input').forEach(input => {
+        input.addEventListener('change', () => {
+          const v = Math.max(1, parseInt(input.value, 10) || 1);
+          input.value = String(v);
         });
-      }
+      });
 
-      // Cart items events (delegation)
-      const cartItems = document.getElementById('cartItems');
-      if (cartItems) {
-        cartItems.addEventListener('click', (e) => {
-          const target = e.target;
+      // Add to cart (flavours)
+      document.querySelectorAll('.add-to-cart').forEach(addBtn => {
+        addBtn.addEventListener('click', () => {
+          const name = addBtn.getAttribute('data-name');
+          if (!name) return;
 
-          // +/- qty
-          if (target.classList && target.classList.contains('qty-btn')) {
-            const name = target.getAttribute('data-name');
-            const action = target.getAttribute('data-action');
-            const item = cart[name];
-            if (!item) return;
-
-            if (action === 'plus') {
-              item.units += 1;
-            } else if (action === 'minus') {
-              item.units = Math.max(0, item.units - 1);
-              // remove non-flavour when 0
-              const isFlavour = FLAVOURS.some(f => f.name === name);
-              if (item.units === 0 && !isFlavour) delete cart[name];
-            }
-            renderCartItems();
-          }
-
-          // remove non-flavour
-          if (target.classList && target.classList.contains('remove-item-btn')) {
-            const name = target.getAttribute('data-name');
-            const isFlavour = FLAVOURS.some(f => f.name === name);
-            if (name && cart[name] && !isFlavour) {
-              delete cart[name];
-              renderCartItems();
-            }
-          }
-        });
-      }
-
-      // Clear cart (confirm only here)
-      const cartClearBtn = document.getElementById('cartClearBtn');
-      if (cartClearBtn) {
-        cartClearBtn.addEventListener('click', () => {
-          if (confirm('Anda pasti mahu kosongkan troli?')) {
-            clearCart();
-          }
-        });
-      }
-
-      // Persist name on input
-      const orderName = document.getElementById("orderName");
-      if (orderName) {
-        orderName.addEventListener("input", persistName);
-      }
-      loadPersistedName();
-
-      // Send order
-      const sendBtn = document.getElementById("sendOrderBtn");
-      if (sendBtn) {
-        sendBtn.addEventListener("click", () => {
-          const { totalSticks } = getCartSummary();
-
-          // validate name
-          const nameEl = document.getElementById("orderName");
-          const nameError = document.getElementById("nameError");
-          const name = (nameEl?.value || "").trim();
-
-          if (!name) {
-            if (nameError) nameError.classList.remove("hidden");
-            if (nameEl) nameEl.focus();
-            return;
-          }
-          if (nameError) nameError.classList.add("hidden");
-
-          if (totalSticks === 0) {
-            alert("Troli masih kosong. Sila tambah item dahulu.");
+          if (isSoldOut(name)) {
+            alert(`Maaf, "${name}" sedang SOLD OUT.`);
             return;
           }
 
-          // open WhatsApp
-          const msg = buildWhatsAppOrderMessage();
-          window.open(wa(msg), "_blank");
-        });
-      }
+          const card = addBtn.closest('[data-flavour]');
+          const qtyInput = card ? card.querySelector('.flavour-qty-input') : null;
+          const qty = qtyInput ? Math.max(1, parseInt(qtyInput.value, 10) || 1) : 1;
 
-      // Packages add
+          addToCart(name, 1, qty);
+
+          if (qtyInput) qtyInput.value = '1';
+          maybeOpenCart();
+        });
+      });
+
+      // Add package
       document.querySelectorAll('.add-package-to-cart').forEach(btn => {
         btn.addEventListener('click', () => {
           const name = btn.getAttribute('data-name');
           const sticks = parseInt(btn.getAttribute('data-sticks'), 10) || 0;
-          if (name && sticks > 0) {
-            addToCart(name, sticks, 1);
-            if (AUTO_OPEN_CART_MODE === "always") openCart({ focusSend: true });
-          }
+          if (!name || sticks <= 0) return;
+          addToCart(name, sticks, 1);
+          maybeOpenCart();
         });
       });
 
-      // Admin open buttons
-      const adminBtns = [
-        document.getElementById("adminOpenBtn"),
-        document.getElementById("adminOpenBtnMobile"),
-        document.getElementById("adminOpenBtnFooter"),
-      ].filter(Boolean);
-      adminBtns.forEach(b => b.addEventListener("click", openAdmin));
+      // Open cart buttons
+      document.getElementById('cartBtn')?.addEventListener('click', openCart);
+      document.getElementById('cartBtnMobile')?.addEventListener('click', openCart);
+      document.getElementById('cartBtnCTA')?.addEventListener('click', openCart);
 
-      // Admin close
-      const adminCloseBtn = document.getElementById("adminCloseBtn");
-      const adminCloseX = document.getElementById("adminCloseX");
-      const adminModal = document.getElementById("adminModal");
-      if (adminCloseBtn) adminCloseBtn.addEventListener("click", closeAdmin);
-      if (adminCloseX) adminCloseX.addEventListener("click", closeAdmin);
-      if (adminModal) {
-        adminModal.addEventListener("click", (e) => {
-          if (e.target === adminModal) closeAdmin();
-        });
-      }
+      document.getElementById('checkCartBtn')?.addEventListener('click', openCart);
+      document.getElementById('checkCartBtnMobile')?.addEventListener('click', () => {
+        openCart();
+        document.getElementById('menuPanel')?.classList.add('hidden');
+      });
 
-      // Admin login
-      const adminLoginBtn = document.getElementById("adminLoginBtn");
-      if (adminLoginBtn) adminLoginBtn.addEventListener("click", adminLogin);
+      document.getElementById('bottomReviewOrderBtn')?.addEventListener('click', openCart);
 
-      // Enter to login
-      const adminPassword = document.getElementById("adminPassword");
-      if (adminPassword) {
-        adminPassword.addEventListener("keydown", (e) => {
-          if (e.key === "Enter") adminLogin();
-        });
-      }
+      // Perisa "Semak Pesanan Anda" -> open cart & focus Hantar Pesanan
+      document.getElementById('perisaCheckOrderBtn')?.addEventListener('click', () => {
+        openCartWithFocus('cartSendOrderBtn');
+      });
 
-      // Admin refresh
-      const adminRefreshBtn = document.getElementById("adminRefreshBtn");
-      if (adminRefreshBtn) {
-        adminRefreshBtn.addEventListener("click", async () => {
-          const r = await loadAvailabilityRemote();
-          if (r) {
-            availability = r;
-            renderAdminList();
-            renderFlavourCards();
-          }
-        });
-      }
+      // Close cart
+      document.getElementById('cartCloseBtn')?.addEventListener('click', closeCart);
+      document.getElementById('cartCloseIcon')?.addEventListener('click', closeCart);
+      document.getElementById('cartBackdrop')?.addEventListener('click', closeCart);
 
-      // Admin save
-      const adminSaveBtn = document.getElementById("adminSaveBtn");
-      if (adminSaveBtn) adminSaveBtn.addEventListener("click", adminSaveAvailability);
+      // ESC close cart + admin
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          const cartModal = document.getElementById('cartModal');
+          if (cartModal && !cartModal.classList.contains('hidden')) closeCart();
 
-      // initial counts
-      renderCartItems();
-      updateCountsUI();
-
-      // ESC to close modals + focus trap
-      document.addEventListener("keydown", (e) => {
-        // trap
-        handleTrap(e, "cartModal", "cartPanel");
-        handleTrap(e, "adminModal", "adminPanel");
-
-        if (e.key === "Escape") {
-          const cartModal = document.getElementById("cartModal");
-          const adminModal = document.getElementById("adminModal");
-          if (adminModal && !adminModal.classList.contains("modal-hidden")) closeAdmin();
-          else if (cartModal && !cartModal.classList.contains("modal-hidden")) closeCart();
+          const adminModal = document.getElementById('adminModal');
+          if (adminModal && !adminModal.classList.contains('hidden')) closeAdmin();
         }
       });
+
+      // +/- & remove inside cart (delegation)
+      document.getElementById('cartItems')?.addEventListener('click', (e) => {
+        const btn = e.target.closest('button');
+        if (!btn) return;
+
+        if (btn.classList.contains('qty-btn')) {
+          const name = btn.getAttribute('data-name');
+          const action = btn.getAttribute('data-action');
+          const item = cart[name];
+          if (!item) return;
+
+          if (action === 'plus') item.units += 1;
+          else if (action === 'minus') {
+            item.units = Math.max(0, item.units - 1);
+            if (item.units === 0 && !FLAVOURS.includes(name)) delete cart[name];
+          }
+          renderCartItems();
+        }
+
+        if (btn.classList.contains('remove-item-btn')) {
+          const name = btn.getAttribute('data-name');
+          if (name && cart[name] && !FLAVOURS.includes(name)) {
+            delete cart[name];
+            renderCartItems();
+          }
+        }
+      });
+
+      // Clear cart
+      document.getElementById('cartClearBtn')?.addEventListener('click', () => {
+        if (confirm('Anda pasti mahu kosongkan troli?')) clearCart();
+      });
+
+      // Send order / Checkout
+      const doCheckout = () => {
+        if (!validateOrderForm()) return;
+        saveOrderNameToLocalStorage();
+        const msg = buildWhatsAppOrderMessage();
+        window.open(wa(msg), '_blank');
+      };
+      document.getElementById('cartSendOrderBtn')?.addEventListener('click', doCheckout);
+      document.getElementById('cartCheckoutBtn')?.addEventListener('click', doCheckout);
+
+      // Visitor widget + datetime
+      initVisitorCounter();
+      initDateTimeWidget();
+
+      // Mobile widget behavior: start hidden, show on first scroll
+      if (isMobile()) {
+        hideVisitorWidget();
+        __showVisitorOnNextScroll = true;
+      }
+      window.addEventListener('scroll', () => {
+        if (!isMobile()) return;
+        if (__cartIsOpen) return;
+        if (__showVisitorOnNextScroll) {
+          showVisitorWidgetNow();
+          __showVisitorOnNextScroll = false;
+        }
+      }, { passive: true });
+
+      // ================= AVAILABILITY START =================
+      // initial + refresh each 30s
+      fetchAvailability();
+      setInterval(fetchAvailability, 30000);
+
+      // ================= ADMIN EVENTS =================
+      document.getElementById('adminOpenBtn')?.addEventListener('click', openAdmin);
+      document.getElementById('adminCloseBtn')?.addEventListener('click', closeAdmin);
+      document.getElementById('adminCloseIcon')?.addEventListener('click', closeAdmin);
+      document.getElementById('adminBackdrop')?.addEventListener('click', closeAdmin);
+
+      document.getElementById('adminLoginBtn')?.addEventListener('click', adminLogin);
+      document.getElementById('adminPassword')?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') adminLogin();
+      });
+
+      document.getElementById('adminLogoutBtn')?.addEventListener('click', adminLogout);
+      document.getElementById('adminSaveBtn')?.addEventListener('click', adminSave);
     });
   </script>
 </body>
