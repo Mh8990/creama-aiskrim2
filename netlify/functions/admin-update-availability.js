@@ -1,7 +1,7 @@
-import { Client } from "pg";
-import jwt from "jsonwebtoken";
+const { Client } = require("pg");
+const jwt = require("jsonwebtoken");
 
-export default async (req) => {
+exports.handler = async (event) => {
   const headers = {
     "Content-Type": "application/json",
     "Access-Control-Allow-Origin": "*",
@@ -9,63 +9,32 @@ export default async (req) => {
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
   };
 
-  if (req.method === "OPTIONS") {
-    return { statusCode: 204, headers, body: "" };
-  }
-
-  if (req.method !== "POST") {
-    return {
-      statusCode: 405,
-      headers,
-      body: JSON.stringify({ ok: false, error: "method_not_allowed" }),
-    };
-  }
+  if (event.httpMethod === "OPTIONS") return { statusCode: 204, headers, body: "" };
+  if (event.httpMethod !== "POST") return { statusCode: 405, headers, body: JSON.stringify({ ok: false, error: "method_not_allowed" }) };
 
   const DATABASE_URL = process.env.DATABASE_URL;
   const ADMIN_TOKEN_SECRET = process.env.ADMIN_TOKEN_SECRET;
 
   if (!DATABASE_URL || !ADMIN_TOKEN_SECRET) {
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({ ok: false, error: "env_not_set" }),
-    };
+    return { statusCode: 500, headers, body: JSON.stringify({ ok: false, error: "env_not_set" }) };
   }
 
-  const authHeader = req.headers.authorization || "";
-  const token = authHeader.startsWith("Bearer ")
-    ? authHeader.slice(7)
-    : null;
-
-  if (!token) {
-    return {
-      statusCode: 401,
-      headers,
-      body: JSON.stringify({ ok: false, error: "missing_token" }),
-    };
-  }
+  // verify token
+  const auth = event.headers.authorization || event.headers.Authorization || "";
+  const token = auth.startsWith("Bearer ") ? auth.slice(7) : "";
+  if (!token) return { statusCode: 401, headers, body: JSON.stringify({ ok: false, error: "missing_token" }) };
 
   try {
     jwt.verify(token, ADMIN_TOKEN_SECRET);
-  } catch {
-    return {
-      statusCode: 401,
-      headers,
-      body: JSON.stringify({ ok: false, error: "invalid_token" }),
-    };
+  } catch (e) {
+    return { statusCode: 401, headers, body: JSON.stringify({ ok: false, error: "invalid_token" }) };
   }
 
   let body = {};
-  try {
-    body = JSON.parse(req.body || "{}");
-  } catch {}
+  try { body = JSON.parse(event.body || "{}"); } catch {}
 
   if (!body.availability || typeof body.availability !== "object") {
-    return {
-      statusCode: 400,
-      headers,
-      body: JSON.stringify({ ok: false, error: "invalid_data" }),
-    };
+    return { statusCode: 400, headers, body: JSON.stringify({ ok: false, error: "invalid_data" }) };
   }
 
   const client = new Client({
@@ -79,21 +48,11 @@ export default async (req) => {
       "UPDATE site_availability SET availability=$1::jsonb, updated_at=now() WHERE id=1",
       [JSON.stringify(body.availability)]
     );
-
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify({ ok: true }),
-    };
-  } catch {
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({ ok: false, error: "db_error" }),
-    };
+    return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
+  } catch (e) {
+    console.error("admin-update-availability db_error:", e);
+    return { statusCode: 500, headers, body: JSON.stringify({ ok: false, error: "db_error" }) };
   } finally {
-    try {
-      await client.end();
-    } catch {}
+    try { await client.end(); } catch {}
   }
 };
