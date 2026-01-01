@@ -1,6 +1,6 @@
-import jwt from "jsonwebtoken";
+const jwt = require("jsonwebtoken");
 
-export default async (req) => {
+exports.handler = async (event) => {
   const headers = {
     "Content-Type": "application/json",
     "Access-Control-Allow-Origin": "*",
@@ -8,51 +8,23 @@ export default async (req) => {
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
   };
 
-  if (req.method === "OPTIONS") {
-    return { statusCode: 204, headers, body: "" };
-  }
-
-  if (req.method !== "POST") {
-    return {
-      statusCode: 405,
-      headers,
-      body: JSON.stringify({ ok: false, error: "method_not_allowed" }),
-    };
-  }
+  if (event.httpMethod === "OPTIONS") return { statusCode: 204, headers, body: "" };
+  if (event.httpMethod !== "POST") return { statusCode: 405, headers, body: JSON.stringify({ ok: false, error: "method_not_allowed" }) };
 
   const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
   const ADMIN_TOKEN_SECRET = process.env.ADMIN_TOKEN_SECRET;
 
   if (!ADMIN_PASSWORD || !ADMIN_TOKEN_SECRET) {
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({ ok: false, error: "env_not_set" }),
-    };
+    return { statusCode: 500, headers, body: JSON.stringify({ ok: false, error: "env_not_set" }) };
   }
 
   let body = {};
-  try {
-    body = JSON.parse(req.body || "{}");
-  } catch {}
+  try { body = JSON.parse(event.body || "{}"); } catch {}
 
-  if (body.password !== ADMIN_PASSWORD) {
-    return {
-      statusCode: 401,
-      headers,
-      body: JSON.stringify({ ok: false, error: "invalid_password" }),
-    };
+  if ((body.password || "") !== ADMIN_PASSWORD) {
+    return { statusCode: 401, headers, body: JSON.stringify({ ok: false, error: "invalid_password" }) };
   }
 
-  const token = jwt.sign(
-    { role: "admin" },
-    ADMIN_TOKEN_SECRET,
-    { expiresIn: "12h" }
-  );
-
-  return {
-    statusCode: 200,
-    headers,
-    body: JSON.stringify({ ok: true, token }),
-  };
+  const token = jwt.sign({ role: "admin" }, ADMIN_TOKEN_SECRET, { expiresIn: "12h" });
+  return { statusCode: 200, headers, body: JSON.stringify({ ok: true, token }) };
 };
