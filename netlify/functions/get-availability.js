@@ -1,6 +1,6 @@
-import { Client } from "pg";
+const { Client } = require("pg");
 
-export default async () => {
+exports.handler = async () => {
   const headers = {
     "Content-Type": "application/json",
     "Access-Control-Allow-Origin": "*",
@@ -8,11 +8,7 @@ export default async () => {
 
   const DATABASE_URL = process.env.DATABASE_URL;
   if (!DATABASE_URL) {
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({ ok: false, error: "DATABASE_URL not set" }),
-    };
+    return { statusCode: 500, headers, body: JSON.stringify({ ok: false, error: "DATABASE_URL not set" }) };
   }
 
   const client = new Client({
@@ -22,27 +18,13 @@ export default async () => {
 
   try {
     await client.connect();
-    const result = await client.query(
-      "SELECT availability FROM site_availability WHERE id = 1 LIMIT 1"
-    );
-
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify({
-        ok: true,
-        availability: result.rows?.[0]?.availability || {},
-      }),
-    };
-  } catch (err) {
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({ ok: false, error: "db_error" }),
-    };
+    const r = await client.query("SELECT availability FROM site_availability WHERE id = 1 LIMIT 1");
+    const availability = (r.rows && r.rows[0] && r.rows[0].availability) ? r.rows[0].availability : {};
+    return { statusCode: 200, headers, body: JSON.stringify({ ok: true, availability }) };
+  } catch (e) {
+    console.error("get-availability db_error:", e);
+    return { statusCode: 500, headers, body: JSON.stringify({ ok: false, error: "db_error" }) };
   } finally {
-    try {
-      await client.end();
-    } catch {}
+    try { await client.end(); } catch {}
   }
 };
