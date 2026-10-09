@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://creama-aiskrim-malaysia-v2.netlify.app/sitemap.xml
